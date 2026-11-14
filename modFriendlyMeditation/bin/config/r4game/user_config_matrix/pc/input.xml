@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-16"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <UserConfig>
 	<Group builder="Input" id="PCInput" displayName="controls_pc" tags="keybinds">
 		<VisibleVars>
@@ -32,7 +32,7 @@
 			<Var builder="Input" id="CameraLock"				displayName="camera_lock"						displayType="INPUTPC" actions="CameraLock"/>
 					
 			<!-- Interactions -->		
-			<Var builder="Input" id="Interaction"				displayName="ControlLayout_Interact"			displayType="INPUTPC" actions="PickOilLamp;PlaceOilLamp;PlaceCrystal;SitDown;Knock;Spare;Unequip;FastTravel;GatherHerbs;Examine;EnterBoat;EnterBoatFromSwimming;MountHorse;Talk;Container;Interact;InteractHold;Use;UseDevice;Open;Close;Lock;Unlock;Take;Push;Pull;Locked;Finisher;Destroy;PrayForSun;PrayForStorm;Arm;Disarm;GatherBrushwood;PlaceHerbs;Drink;PlaceOffering;Grab;Free;Ignite;UnblockGate;UseItem;Read;PullAxe;Interaction;Extinguish;CallJohnny;HideBible;SitAndWait;PlaceBottle;WineSlot;BurnBody;PutBack;Debung;Touch;CutRope;KneelDown;PlaceTribute;HangPainting;PlaceArmor;PlaceSword;GiveAlms;PlaceLure;PlaceBeans;Stash;Look;TakePaintGreen;TakePaintBlue;TakePaintRed;TakePaintYellow;TakePaintPurple;DisposePaint;HideIn;PlaceTrophy" tags="input_overlap3"/>
+			<Var builder="Input" id="Interaction"				displayName="ControlLayout_Interact"			displayType="INPUTPC" actions="PickOilLamp;PlaceOilLamp;PlaceCrystal;SitDown;Knock;Spare;Unequip;FastTravel;GatherHerbs;Examine;EnterBoat;EnterBoatFromSwimming;MountHorse;Talk;Container;Interact;InteractHold;Use;UseDevice;Open;Close;Lock;Unlock;Take;Push;Pull;Locked;Finisher;Destroy;PrayForSun;PrayForStorm;Arm;Disarm;GatherBrushwood;PlaceHerbs;Drink;PlaceOffering;Grab;Free;Ignite;UnblockGate;UseItem;Read;PullAxe;Interaction;Extinguish;CallJohnny;HideBible;SitAndWait;PlaceBottle;WineSlot;BurnBody;PutBack;Debung;Touch;CutRope;KneelDown;PlaceTribute;HangPainting;PlaceArmor;PlaceSword;GiveAlms;PlaceLure;PlaceBeans;Stash;Look;TakePaintGreen;TakePaintBlue;TakePaintRed;TakePaintYellow;TakePaintPurple;DisposePaint;HideIn;PlaceTrophy,BuryBody" tags="input_overlap3"/>
 					
 			<!-- Attacks -->	
 			<Var builder="Input" id="AttackWithAlternate"		displayName="attack_light_and_heavy"			displayType="INPUTPC" actions="PCAlternate" tags="input_overlap1"/>
@@ -71,24 +71,31 @@
 			<Var builder="Input" id="RadialMenu"				displayName="ControlLayout_RadialMenu"			displayType="INPUTPC" actions="RadialMenu"/>
 			
 			<!-- Potions -->		
-			<Var builder="Input" id="DrinkPotion1"				displayName="potion_1"							displayType="INPUTPC" actions="DrinkPotion1"/>
-			<Var builder="Input" id="DrinkPotion2"				displayName="potion_2"							displayType="INPUTPC" actions="DrinkPotion2"/>
-			<Var builder="Input" id="DrinkPotion3"				displayName="potion_3"							displayType="INPUTPC" actions="DrinkPotion3"/>
-			<Var builder="Input" id="DrinkPotion4"				displayName="potion_4"							displayType="INPUTPC" actions="DrinkPotion4"/>
+			<Var builder="Input" id="DrinkPotion1"				displayName="potion_1"							displayType="INPUTPC" actions="DrinkPotion1" tags="input_overlap_potion1"/>
+			<Var builder="Input" id="DrinkPotion2"				displayName="potion_2"							displayType="INPUTPC" actions="DrinkPotion2" tags="input_overlap_potion2"/>
+			<Var builder="Input" id="DrinkPotion3"				displayName="potion_3"							displayType="INPUTPC" actions="DrinkPotion3" tags="input_overlap_potion3"/>
+			<Var builder="Input" id="DrinkPotion4"				displayName="potion_4"							displayType="INPUTPC" actions="DrinkPotion4" tags="input_overlap_potion4"/>
+			<Var builder="Input" id="DrinkPotion1Hold"			displayName="potion_1"							displayType="INPUTPC" actions="DrinkPotion1Hold" tags="input_overlap_potion1;locked"/>
+			<Var builder="Input" id="DrinkPotion2Hold"			displayName="potion_2"							displayType="INPUTPC" actions="DrinkPotion2Hold" tags="input_overlap_potion2;locked"/>
+			<Var builder="Input" id="DrinkPotion3Hold"			displayName="potion_3"							displayType="INPUTPC" actions="DrinkPotion3Hold" tags="input_overlap_potion3;locked"/>
+			<Var builder="Input" id="DrinkPotion4Hold"			displayName="potion_4"							displayType="INPUTPC" actions="DrinkPotion4Hold" tags="input_overlap_potion4;locked"/>
 			
 			<!-- Shortcuts -->		
-			<Var builder="Input" id="SteelSword"				displayName="draw_steel"						displayType="INPUTPC" actions="SteelSword;SwordSheatheSteel;CiriDrawWeapon"/>
-			<Var builder="Input" id="SilverSword"				displayName="draw_silver"						displayType="INPUTPC" actions="SilverSword;SwordSheatheSilver;CiriDrawWeaponAlternative"/>
+			<Var builder="Input" id="SteelSword"				displayName="draw_steel"						displayType="INPUTPC" actions="SteelSword;SwordSheatheSteel;CiriDrawWeapon;OilSteelKB"/>
+			<Var builder="Input" id="SilverSword"				displayName="draw_silver"						displayType="INPUTPC" actions="SilverSword;SwordSheatheSilver;CiriDrawWeaponAlternative;OilSilverKB"/>
 			<Var builder="Input" id="SelectAard"				displayName="select_aard"						displayType="INPUTPC" actions="SelectAard"/>
 			<Var builder="Input" id="SelectYrden"				displayName="select_yrden"						displayType="INPUTPC" actions="SelectYrden"/>
 			<Var builder="Input" id="SelectIgni"				displayName="select_igni"						displayType="INPUTPC" actions="SelectIgni"/>
 			<Var builder="Input" id="SelectQuen"				displayName="select_quen"						displayType="INPUTPC" actions="SelectQuen"/>
 			<Var builder="Input" id="SelectAxii"				displayName="select_axii"						displayType="INPUTPC" actions="SelectAxii"/>
+
+			<!-- PhotoMode -->
+			<Var builder="Input" id="PhotoMode" 				displayName="ControlLayout_PhotoMode"			displayType="INPUTPC" actions="EnablePhotoMode"/> 
 			
 			
 			<!-- Panels -->		
 			<Var builder="Input" id="ChangeQuest"				displayName="ControlLayout_ChangeQuest"			displayType="INPUTPC" actions="HighlightObjective;TrackQuest"/>
-			<Var builder="Input" id="ToggleHud"				displayName="toggle_hud"						displayType="INPUTPC" actions="ToggleHud" tags="locked"/>
+			<Var builder="Input" id="ToggleHud"					displayName="toggle_hud"						displayType="INPUTPC" actions="ToggleHud" tags="locked"/>
 		    <Var builder="Input" id="PanelChar"					displayName="character_panel"					displayType="INPUTPC" actions="PanelChar" tags="locked"/>
 			<Var builder="Input" id="PanelInv"					displayName="Inventory"							displayType="INPUTPC" actions="PanelInv" tags="locked"/>
 			<Var builder="Input" id="PanelMap"					displayName="map"								displayType="INPUTPC" actions="PanelMapPC" tags="locked"/>
@@ -100,6 +107,7 @@
 			<Var builder="Input" id="PanelBestiary"				displayName="panel_journal_tabname_bestiary"	displayType="INPUTPC" actions="PanelBestiary" tags="locked"/><!-- loc key reuse requested by story -->
 		    <Var builder="Input" id="PanelGlossary"				displayName="glossary"							displayType="INPUTPC" actions="PanelGlossary" tags="locked"/>
 			<Var builder="Input" id="PanelGwintDeckEditor"		displayName="gwint_deck"						displayType="INPUTPC" actions="PanelGwintDeckEditor" tags="locked"/>
+
 			
 		</VisibleVars>
 	</Group>
