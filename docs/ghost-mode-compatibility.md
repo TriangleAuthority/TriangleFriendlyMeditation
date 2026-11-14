@@ -22,9 +22,18 @@ State on 2026-11-13 (Ghost Mode's `master` at 229b8e1d), read from both reposito
 | Script blobs | `modGhostMode` blob | `modFriendlyMeditation` blob | Fine while no method is replaced by both; prefix all FM additions |
 | Game install, saves | Shared slot, `game.py` needs Ghost Mode installed | Same as Gwent | As Gwent's tools.md |
 
-## Compatibility patch (planned)
+## Combining cleanly without a patch (analysis, 2026-11-13)
 
-**Decision** (owner, 2026-11-13): conflicts between the mods are fixed by **our own compatibility patch mod**, shipped on top of Ghost Mode, Preparations and Friendly Meditation, not by Script Merger (v3.01 loses `default` lines and loose replacements on blobs like Ghost Mode's; TriangleGhostMode `docs/development.md`). How it works, from the verified blob rules:
+With the [proposed form](port-plan.md#decisions-made) (FM's fast-forward inside 5.x's idle `Meditation` state, never `MeditationWaiting`), Friendly Meditation combines with Ghost Mode and Preparations as separate blobs, in any folder order, with no patch. Read in code; nothing built or tested yet.
+
+- **FM replaces or skips `wrappedMethod` in only two methods, which neither Ghost Mode nor Preparations touches:** `W3PlayerWitcherStateMeditation.MeditationWait` (always, for FM's fast-forward) and `W3PlayerWitcherStateMeditationBase.OpenUI` (only in the hold-N mode). Possibly a third, the entry function `InitState`, if the Igni pose needs it (also untouched by both).
+- **Every method FM shares with them it wraps in calling form**, as they do: `OnSpawned`, `DisallowedActionDontShowHack` (Preparations' wrapper must call `wrappedMethod` too).
+- **Methods they replace FM only calls**: `CanMeditate`, `CanMeditateWait`, `CanMeditateHere` (Preparations), `MeditationRestoring` (FM never calls it), `SingletonItemsRefillAmmo`, `ApplyWitcherHouseBuffs`, `OnTakeDamage`/`OnCombatStart` (Ghost Mode's replacements keep calling `MeditationForceAbort`, which reaches FM through `StopRequested`).
+- **Ghost Mode's exhaustion:** its instant clear does not run after FM meditation (accepted: it comes back through regen).
+
+## Compatibility patch (fallback)
+
+**Decision** (owner, 2026-11-13): conflicts the mods cannot be written around go into **our own compatibility patch mod** in its own repository, not into Script Merger. None is left for Friendly Meditation with the design above. If one turns up:
 
 - **Independent of the order of the mods below it.** The patch's folder sorts before all of them (e.g. `mod0TriangleCompat`; digits sort before letters), so it takes precedence whatever their names or `mods.settings` priorities say about each other. Its `@replaceMethod` of a method drops every other mod's change of that method, replacements and wrappers alike.
 - **It covers every method that one mod replaces and another mod changes in any way**, not only the pairs that fail at the default order. A replacement in one mod and a wrapper in another combine only when the wrapping mod comes first, so any such pair depends on the order: the patch takes it over. For Friendly Meditation: any method it replaces (or skips `wrappedMethod` in) that Ghost Mode or Preparations also changes, found as the slices are built; for Preparations: its six wrappers on Ghost Mode's replacements and `MeditationRestoring`. Scope-based overrides count as replacements (how two blobs' overrides of one method combine is untested). Only methods that every mod merely wraps stay out of the patch: wrappers chain in any order.
@@ -32,9 +41,21 @@ State on 2026-11-13 (Ghost Mode's `master` at 229b8e1d), read from both reposito
 - **Installed only together with every mod it merges** (owner, 2026-11-13); without one of them it is not installed. Its combined bodies need the mods' own fields and functions (Ghost Mode's option helpers, Preparations' settings). Each blob is compiled against vanilla only, so the patch must be compiled against the mods' sources as declarations (Script Merger's `Tools\WSCompiler\WSCompiler.exe --reference <mod scripts>` does that; `wcc_lite` has no such option). That works in game (**verified** 2026-11-13: a blob built this way called another blob's global function and `@addMethod`, read its `@addField` and created its class; TriangleGhostMode `docs/development.md`). The patch is therefore built with `WSCompiler`, referencing the mods' sources.
 - **Enum members: not fixable by the patch** (each blob compiles them as numbers; TriangleGhostMode `docs/development.md`). Friendly Meditation adds none.
 - **Upkeep:** the patch copies the mods' code of those methods, so a change to one of them in any mod needs a patch release; the patch's build should compare its copies with the mods' sources and fail when they drift. The patch is needed only when Ghost Mode and the other mod are both installed.
-- **Where it lives:** its own repository next to the others (owner, 2026-11-13), created once the refactor analysis shows what is left for it.
+- **Where it lives:** its own repository next to the others (owner, 2026-11-13).
 
 ## Preparations interaction
+
+**Proposed runtime interface** (analysis 2026-11-13; each mod keeps its own prefixed names, `FM*`/`Prep*`, and neither declares a shared one):
+
+- **"Is meditating":** Preparations checks the state name `'Meditation'`, as legacy Preparations' own `IsMeditating` did (legacy Preparations never used `IsSkippingTime`). FM's fast-forward stays in that state, so this needs nothing else.
+- **"May FM spawn a campfire now":** FM sets the fact `fmed_campfire_query` and calls vanilla `CanMeditate()`; Preparations' replacement, seeing the fact, runs its campfire check and writes `prep_fmed_campfire_ok`; FM reads it and removes both. Without Preparations the fact never appears and FM uses its own option.
+- **Autorefill:** legacy's `fmedAutorefillAlchemy` goes; FM always calls `SingletonItemsRefillAmmo`, which Preparations' replacement filters by type.
+- **Timber and the error message:** Preparations adds `PrepCampFireResourcesTimer` and `PrepCampFireErrorMessageTimer` (`@addMethod` timers); FM starts them by name with `AddTimer` only when Preparations is present (a fact Preparations sets in `OnSpawned`).
+- **FM's campfire counts as a fire:** FM tags it `fmed_campfire`; Preparations' fire check finds it by tag.
+- **Options:** Preparations keeps reading FM's legacy ids (`modFriendlyMeditation` / `fmedSpawnCampfire`).
+- Alternatively, a blob can call another blob's functions when compiled against it with `WSCompiler --reference` (verified, TriangleGhostMode `docs/development.md`), but then it fails without the other mod (untested how), so the runtime interface is preferred between mods that are installed separately.
+
+**Legacy, for reference:**
 
 Preparations 6.2 (TrianglePreparations, `legacy-PREP`) was written to merge with FM: its `playerWitcher.ws` carries FM's field block and FM's `IsMeditating`, `IsSkippingTime`, `UpdateEffectsAccelerated` verbatim, so each mod compiled alone and Script Merger joined them. What Preparations uses from FM (all **unverified** in game):
 
