@@ -6,4 +6,5 @@ Every place where the port behaves differently from Friendly Meditation 2.3, wit
 
 | # | Feature | Legacy | Port | Why | Decided | Question for the author |
 |---|---|---|---|---|---|---|
-| 1 | FM-RT, FM-CLOCK | The clock menu, N and the radial menu start FM's real-time meditation; vanilla's flow is gone | 5.x's sit-down, clock and time-lapse (healing at the end) stay on N and the Meditation tab; FM's real-time meditation starts from its hotkey and the radial menu | Keeps 5.x's reworked meditation and is far less code | Owner, 2026-11-13 | None (an owner's choice for 5.x) |
+
+None yet. (An entry keeping 5.x's meditation beside FM's was withdrawn on 2026-11-13: FM replaces it, as in legacy.)
