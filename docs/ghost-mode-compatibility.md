@@ -22,6 +22,17 @@ State on 2026-11-13 (Ghost Mode's `master` at 229b8e1d), read from both reposito
 | Script blobs | `modGhostMode` blob | `modFriendlyMeditation` blob | Fine while no method is replaced by both; prefix all FM additions |
 | Game install, saves | Shared slot, `game.py` needs Ghost Mode installed | Same as Gwent | As Gwent's tools.md |
 
+## Compatibility patch (planned)
+
+**Decision** (owner, 2026-11-13): conflicts that do not combine cleanly are fixed by **our own compatibility patch mod**, shipped on top of Ghost Mode, Preparations and Friendly Meditation, not by Script Merger (v3.01 loses `default` lines and loose replacements on blobs like Ghost Mode's; TriangleGhostMode `docs/development.md`). How it works, from the verified blob rules:
+
+- **A blob of its own whose folder sorts before `modGhostMode`** (e.g. `mod0TriangleCompat`; digits sort before letters), so its `@replaceMethod` of a method wins over both mods' changes of it. Precedence by folder name needs nothing from the player; a `mods.settings` priority would work too but is easy to lose.
+- **For each clashing method, one `@replaceMethod` whose body is the combined code**: Ghost Mode's replaced body with the other mod's change worked in (e.g. `ConsumeItem` with Ghost Mode's toxicity rule and Preparations' combat refusal). Wrappers of mods that sort after the patch are dropped by its replacement, so the patch also carries those mods' wrappers of that method, folded into the body.
+- **Only the methods that clash**: for Friendly Meditation, any method it replaces that Ghost Mode or Preparations also changes, found as the slices are built (none known yet besides `MeditationRestoring`, which FM no longer calls); for Preparations, its six wrappers on Ghost Mode's replacements. Everything that already combines (wrappers on both sides, wrapper over replacement in the right order) stays in the mods.
+- **What it cannot fix: enum members.** Each blob numbers its new enum members as if it were alone, so Ghost Mode's and Preparations' new effect types get the same number, and the values are compiled into each blob. Friendly Meditation adds no enum members.
+- **Upkeep:** the patch copies Ghost Mode's bodies of those methods, so a Ghost Mode change to one of them needs a patch release; the patch's build should compare its copies with Ghost Mode's sources and fail when they drift. The patch is needed only when Ghost Mode and the other mod are both installed.
+- **Where it lives:** to decide (its own repository next to the others, or inside one of them).
+
 ## Preparations interaction
 
 Preparations 6.2 (TrianglePreparations, `legacy-PREP`) was written to merge with FM: its `playerWitcher.ws` carries FM's field block and FM's `IsMeditating`, `IsSkippingTime`, `UpdateEffectsAccelerated` verbatim, so each mod compiled alone and Script Merger joined them. What Preparations uses from FM (all **unverified** in game):
