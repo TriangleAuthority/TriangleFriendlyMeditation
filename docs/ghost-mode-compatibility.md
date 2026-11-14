@@ -32,7 +32,7 @@ State on 2026-11-13 (Ghost Mode's `master` at 229b8e1d), read from both reposito
 - **Installed only together with every mod it merges** (owner, 2026-11-13); without one of them it is not installed. Its combined bodies need the mods' own fields and functions (Ghost Mode's option helpers, Preparations' settings). Each blob is compiled against vanilla only, so the patch must be compiled against the mods' sources as declarations (Script Merger's `Tools\WSCompiler\WSCompiler.exe --reference <mod scripts>` does that; `wcc_lite` has no such option). Whether a call from one blob into a function another blob adds works in game is **untested**: probe it before the first patch slice.
 - **Enum members: not fixable by the patch** (each blob compiles them as numbers; TriangleGhostMode `docs/development.md`). Friendly Meditation adds none.
 - **Upkeep:** the patch copies the mods' code of those methods, so a change to one of them in any mod needs a patch release; the patch's build should compare its copies with the mods' sources and fail when they drift. The patch is needed only when Ghost Mode and the other mod are both installed.
-- **Where it lives:** to decide (its own repository next to the others, or inside one of them).
+- **Where it lives:** its own repository next to the others (owner, 2026-11-13), created once the refactor analysis shows what is left for it.
 
 ## Preparations interaction
 
