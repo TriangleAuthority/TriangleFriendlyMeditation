@@ -11,7 +11,7 @@ As in TriangleGhostMode and TriangleGwentImprovements: reproduce the legacy mod'
 ## Decisions to make
 
 1. **5.x's own meditation:** (a) **replace** it as legacy replaced 1.32's: the clock menu and N start FM meditation, the menu closes, time passes in the world with buffs updated; or (b) **keep** 5.x's sit-down, clock and time-lapse (with `MeditationRestoring` at the end) and add FM's hotkey meditation beside it, sharing the states through a flag. (b) is far less code and keeps 5.x's new animation, rotation and weather blending; (a) is legacy's behaviour.
-2. **Healing:** legacy FM meditation never calls `MeditationRestoring` (no full heal on the easy modes, no toxicity or adrenaline reset, refill only after one game hour of fast-forward). Keep for FM meditation? (Ghost Mode's exhaustion clear depends on it, below.)
+2. **Healing:** legacy FM meditation never calls `MeditationRestoring` (no full heal on the easy modes, no toxicity or adrenaline reset, refill only after one game hour of fast-forward). Keep for FM meditation? (Ghost Mode's exhaustion still comes back with time without it: [ghost-mode-compatibility.md](ghost-mode-compatibility.md).)
 3. **Hotkey path** once slice 0 shows what works ([meditation-5.x.md](meditation-5.x.md#hotkeys-on-5x)).
 4. **Names shared with Preparations** ([below](ghost-mode-compatibility.md#preparations-interaction)).
 
