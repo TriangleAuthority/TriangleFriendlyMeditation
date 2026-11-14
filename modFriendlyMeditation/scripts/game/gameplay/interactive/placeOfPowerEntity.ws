@@ -123,7 +123,9 @@ state PlaceOfPower_Idle in CMajorPlaceOfPowerEntity
 		parent.isPlaceOfPowerInIdle = true;
 		
 		parent.PlayEffect( parent.fxOnIdle );
-		if(thePlayer)
+		//---=== modFriendlyMeditation ===---
+		if(thePlayer && prevStateName == 'PlaceOfPower_Channeling')
+		//---=== modFriendlyMeditation ===---
 			thePlayer.PlayerStopAction( PEA_Meditation );
 		parent.isRecharging = false;
 		
@@ -159,6 +161,10 @@ state PlaceOfPower_Channeling in CMajorPlaceOfPowerEntity
 		var test : name; 
 		var channelPerc : float;
 		
+		//---=== modFriendlyMeditation ===---
+		thePlayer.SetBehaviorVariable( 'MeditateWithIgnite', 0 );
+		thePlayer.SetBehaviorVariable( 'HasCampfire', 0 );
+		//---=== modFriendlyMeditation ===---
 		thePlayer.PlayerStartAction( PEA_Meditation );
 		while( true )
 		{
@@ -201,7 +207,10 @@ state PlaceOfPower_Activated in CMajorPlaceOfPowerEntity
 		
 		GrantSkillPointIfPossible();
 		GrantBuff();
-		thePlayer.PlayerStopAction( PEA_Meditation );
+		//---=== modFriendlyMeditation ===---
+		if(prevStateName == 'PlaceOfPower_Channeling')
+		//---=== modFriendlyMeditation ===---
+			thePlayer.PlayerStopAction( PEA_Meditation );
 		theGame.GetCommonMapManager().SetEntityMapPinDisabled( parent.entityName, true );
 
 		parent.GotoState( 'PlaceOfPower_Recharging' );

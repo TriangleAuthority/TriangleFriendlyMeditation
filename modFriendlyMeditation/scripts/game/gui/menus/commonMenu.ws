@@ -55,8 +55,10 @@ class CR4CommonMenu extends CR4MenuBase
 	protected var m_GFxBindings		: array<SKeyBinding>;
 	
 	public var m_contextManager  	: W3ContextManager;
-	public var m_mode_meditation 	: bool; default m_mode_meditation = false;
-	public var m_had_meditation		: bool; default m_had_meditation = false;
+	//---=== modFriendlyMeditation ===---
+	//public var m_mode_meditation 	: bool; default m_mode_meditation = false;
+	//public var m_had_meditation		: bool; default m_had_meditation = false;
+	//---=== modFriendlyMeditation ===---
 	private var noSaveLock			: int;		
 	
 	private var isCiri : bool;
@@ -259,10 +261,12 @@ class CR4CommonMenu extends CR4MenuBase
 				
 			}
 		}
-		else if (menuName == 'MeditationClockMenu')
-		{
-			SetMeditationMode(true);
-		}
+		//---=== modFriendlyMeditation ===---
+		//else if (menuName == 'MeditationClockMenu')
+		//{
+		//	SetMeditationMode(true);
+		//}
+		//---=== modFriendlyMeditation ===---
 		
 		if( m_menuData.Size() < 1 )
 		{
@@ -326,10 +330,12 @@ class CR4CommonMenu extends CR4MenuBase
 		}
 	}
 	
-	public function GetIsPlayerMeditatingInBed() : bool
-	{
-		return isPlayerMeditatingInBed;
-	}
+	//---=== modFriendlyMeditation ===---
+	//public function GetIsPlayerMeditatingInBed() : bool
+	//{
+	//	return isPlayerMeditatingInBed;
+	//}
+	//---=== modFriendlyMeditation ===---
 	
 	protected function GetSavedDataMenuName() : name
 	{
@@ -422,20 +428,24 @@ class CR4CommonMenu extends CR4MenuBase
 	event  OnClosingMenu()
 	{	
 		var menuInitData : W3MenuInitData;
-		var fastForward : CGameFastForwardSystem;
-		var waitt : W3PlayerWitcherStateMeditationWaiting;
+		//---=== modFriendlyMeditation ===---
+		//var fastForward : CGameFastForwardSystem;
+		//var waitt : W3PlayerWitcherStateMeditationWaiting;
+		//---=== modFriendlyMeditation ===---
 		
 		theSound.SoundEvent("system_resume");
 		OnPlaySoundEvent( "gui_global_panel_close" );
 		
 		theGame.GameplayFactsRemove("stashMode");
 		
-		if(thePlayer.GetCurrentStateName() == 'MeditationWaiting')
-		{
-			waitt = (W3PlayerWitcherStateMeditationWaiting)thePlayer.GetCurrentState();
-			if(waitt)
-				waitt.RequestWaitStop();
-		}
+		//---=== modFriendlyMeditation ===---
+		//if(thePlayer.GetCurrentStateName() == 'MeditationWaiting')
+		//{
+		//	waitt = (W3PlayerWitcherStateMeditationWaiting)thePlayer.GetCurrentState();
+		//	if(waitt)
+		//		waitt.RequestWaitStop();
+		//}
+		//---=== modFriendlyMeditation ===---
 		
 		
 		menuInitData = (W3MenuInitData)GetMenuInitData();
@@ -449,11 +459,13 @@ class CR4CommonMenu extends CR4MenuBase
 			delete m_contextManager;
 		}
 		
-		StopMeditation();
-		
-		
-		fastForward = theGame.GetFastForwardSystem();
-		fastForward.RequestFastForwardShutdown( true );
+		//---=== modFriendlyMeditation ===---
+		//StopMeditation();
+		//
+		//
+		//fastForward = theGame.GetFastForwardSystem();
+		//fastForward.RequestFastForwardShutdown( true );
+		//---=== modFriendlyMeditation ===---
 		
 		theGame.Unpause("menus");
 		
@@ -826,7 +838,9 @@ class CR4CommonMenu extends CR4MenuBase
 		{
 			SetMenuTabeEnable( 'PreparationMenu',	false );				
 		}
-		if( !thePlayer.IsActionAllowed( EIAB_OpenMeditation ) && !GetIsPlayerMeditatingInBed() )
+		//---=== modFriendlyMeditation ===---
+		if( !thePlayer.IsActionAllowed( EIAB_OpenMeditation ) /*&& !isPlayerMeditatingInBed*/ )
+		//---=== modFriendlyMeditation ===---
 		{
 			SetMenuTabeEnable( 'MeditationClockMenu',	false );				
 		}
@@ -1451,49 +1465,51 @@ class CR4CommonMenu extends CR4MenuBase
 	}
 	
 	
-	public function SetMeditationMode(value:bool):void
-	{	
-		if (m_mode_meditation != value)
-		{
-			m_mode_meditation = value;
-			
-			
-			
-			
-			
-			if (m_mode_meditation)
-			{
-				m_had_meditation = true;
-			}
-		}
-	}
-	
-	private function StopMeditation()
-	{
-		var medd : W3PlayerWitcherStateMeditation;
-		var waitt : W3PlayerWitcherStateMeditationWaiting;
-		
-		if (m_had_meditation)
-		{		
-			SetMeditationMode(false);
-			if(thePlayer.GetCurrentStateName() == 'MeditationWaiting')
-			{
-				waitt = (W3PlayerWitcherStateMeditationWaiting)thePlayer.GetCurrentState();
-				if(waitt)
-				{
-					waitt.StopRequested();
-				}
-			}
-			else
-			{
-				medd = (W3PlayerWitcherStateMeditation)GetWitcherPlayer().GetCurrentState();
-				if(medd)
-				{
-					medd.StopRequested();
-				}
-			}
-		}
-	}
+	//---=== modFriendlyMeditation ===---
+	//public function SetMeditationMode(value:bool):void
+	//{	
+	//	if (m_mode_meditation != value)
+	//	{
+	//		m_mode_meditation = value;
+	//		
+	//		
+	//		
+	//		
+	//		
+	//		if (m_mode_meditation)
+	//		{
+	//			m_had_meditation = true;
+	//		}
+	//	}
+	//}
+	//
+	//private function StopMeditation()
+	//{
+	//	var medd : W3PlayerWitcherStateMeditation;
+	//	var waitt : W3PlayerWitcherStateMeditationWaiting;
+	//	
+	//	if (m_had_meditation)
+	//	{		
+	//		SetMeditationMode(false);
+	//		if(thePlayer.GetCurrentStateName() == 'MeditationWaiting')
+	//		{
+	//			waitt = (W3PlayerWitcherStateMeditationWaiting)thePlayer.GetCurrentState();
+	//			if(waitt)
+	//			{
+	//				waitt.StopRequested();
+	//			}
+	//		}
+	//		else
+	//		{
+	//			medd = (W3PlayerWitcherStateMeditation)GetWitcherPlayer().GetCurrentState();
+	//			if(medd)
+	//			{
+	//				medd.StopRequested();
+	//			}
+	//		}
+	//	}
+	//}
+	//---=== modFriendlyMeditation ===---
 	
 	
 		

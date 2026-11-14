@@ -26,6 +26,10 @@ statemachine class W3PlayerWitcher extends CR4Player
 	private saved var booksRead 						: array<name>; 					
 	
 	
+	//---=== modFriendlyMeditation ===---
+	public				var fMeditationConfig			: CModFMeditationConfig;
+	//---=== modFriendlyMeditation ===---
+	
 	private 			var fastAttackCounter, heavyAttackCounter	: int;		
 	private				var isInFrenzy : bool;
 	private				var hasRecentlyCountered : bool;
@@ -33,6 +37,21 @@ statemachine class W3PlayerWitcher extends CR4Player
 	
 	
 	protected saved			var amountOfSetPiecesEquipped			: array<int>;
+	
+	
+	//---=== modFriendlyMeditation ===---
+						var spawnedCampFire					: W3Campfire;
+						var fmedCanSpawnCampfire			: bool;
+						default fmedCanSpawnCampfire = true;
+						var fmedAutorefillAlchemy			: bool;
+						default fmedAutorefillAlchemy = true;
+						var fmedRefillIntervalSeconds		: float;
+						default fmedRefillIntervalSeconds = 3600.0;
+						var fmedApplyWitcherHouseBuffs		: bool;
+						default fmedApplyWitcherHouseBuffs = true;
+						var fmedWitcherHouseBuffsHours	: int;
+						default fmedWitcherHouseBuffsHours = 1;
+	//---=== modFriendlyMeditation ===---
 	
 	
 	public				var canSwitchFocusModeTarget	: bool;
@@ -281,6 +300,11 @@ statemachine class W3PlayerWitcher extends CR4Player
 		{
 			AddTimer('DelayedHorseUpdate', 0.01, true);
 		}
+		
+		//---=== modFriendlyMeditation ===---
+		fMeditationConfig = new CModFMeditationConfig in this;
+		fMeditationConfig.Init();
+		//---=== modFriendlyMeditation ===---
 		
 		
 		RemoveAbility('Ciri_CombatRegen');
@@ -7164,6 +7188,11 @@ statemachine class W3PlayerWitcher extends CR4Player
 		
 		if( l_i == PEA_GoToSleep )
 		{
+			//modFriendlyMeditation begin
+			UnblockAction( EIAB_OpenMeditation, 'WitcherBed' );
+			UnblockAction( EIAB_MeditationWaiting, 'WitcherBed' );
+			//modFriendlyMeditation end
+		
 			l_initData = new W3SingleMenuInitData in this;
 			l_initData.SetBlockOtherPanels( true );
 			l_initData.ignoreSaveSystem = true;
@@ -7454,14 +7483,17 @@ statemachine class W3PlayerWitcher extends CR4Player
 	
 	event OnBlockingSceneStarted( scene: CStoryScene )
 	{
-		var med : W3PlayerWitcherStateMeditationWaiting;
-				
-		
-		med = (W3PlayerWitcherStateMeditationWaiting)GetCurrentState();
-		if(med)
-		{
-			med.StopRequested(true);
-		}
+		//---=== modFriendlyMeditation ===---
+		//var med : W3PlayerWitcherStateMeditationWaiting;
+		//		
+		//
+		//med = (W3PlayerWitcherStateMeditationWaiting)GetCurrentState();
+		//if(med)
+		//{
+		//	med.StopRequested(true);
+		//}
+		ModEndMeditation();
+		//---=== modFriendlyMeditation ===---
 		
 		
 		super.OnBlockingSceneStarted( scene );
@@ -8803,6 +8835,23 @@ statemachine class W3PlayerWitcher extends CR4Player
 	
 	
 	
+	//---=== modFriendlyMeditation ===---
+	public function IsMeditating() : bool
+	{
+		return ( GetCurrentStateName() == 'Meditation' );
+	}
+
+	public function IsSkippingTime() : bool
+	{
+		return ( GetCurrentStateName() == 'MeditationWaiting' );
+	}
+	
+	public function UpdateEffectsAccelerated( realTimeSecs, acceleration : float )
+	{
+		effectManager.PerformUpdate( realTimeSecs * acceleration );
+	}
+	//---=== modFriendlyMeditation ===---
+	
 	public function SimulateBuffTimePassing(simulatedTime : float)
 	{
 		super.SimulateBuffTimePassing(simulatedTime);
@@ -8873,20 +8922,29 @@ statemachine class W3PlayerWitcher extends CR4Player
 	
 	public function Meditate() : bool
 	{
-		var medState 			: W3PlayerWitcherStateMeditation;
-		var stateName 			: name;
-	
-		stateName = GetCurrentStateName();
-	
+		//---=== modFriendlyMeditation ===---
+		//var medState 			: W3PlayerWitcherStateMeditation;
+		//var stateName 			: name;
+	    //
+		//stateName = GetCurrentStateName();
+	    //
+		//
+		//if (!CanMeditate()  || stateName == 'MeditationWaiting' )
+		//	return false;
+	    //
+		//GotoState('Meditation');
+		//medState = (W3PlayerWitcherStateMeditation)GetState('Meditation');		
+		//medState.SetMeditationPointHeading(GetHeading());
+		//
+		//return true;
 		
-		if (!CanMeditate()  || stateName == 'MeditationWaiting' )
+		if ( !ModCanMeditate() )
 			return false;
-	
-		GotoState('Meditation');
-		medState = (W3PlayerWitcherStateMeditation)GetState('Meditation');		
-		medState.SetMeditationPointHeading(GetHeading());
+		
+		theGame.RequestMenuWithBackground( 'MeditationClockMenu', 'CommonMenu' );
 		
 		return true;
+		//---=== modFriendlyMeditation ===---
 	}
 	
 	
@@ -8946,28 +9004,31 @@ statemachine class W3PlayerWitcher extends CR4Player
 	
 	public function MeditationForceAbort(forceCloseUI : bool)
 	{
-		var waitt : W3PlayerWitcherStateMeditationWaiting;
-		var medd : W3PlayerWitcherStateMeditation;
-		var currentStateName : name;
-		
-		currentStateName = GetCurrentStateName();
-		
-		if(currentStateName == 'MeditationWaiting')
-		{
-			waitt = (W3PlayerWitcherStateMeditationWaiting)GetCurrentState();
-			if(waitt)
-			{
-				waitt.StopRequested(forceCloseUI);
-			}
-		}
-		else if(currentStateName == 'Meditation')
-		{
-			medd = (W3PlayerWitcherStateMeditation)GetCurrentState();
-			if(medd)
-			{
-				medd.StopRequested(forceCloseUI);
-			}
-		}
+		//---=== modFriendlyMeditation ===---
+		//var waitt : W3PlayerWitcherStateMeditationWaiting;
+		//var medd : W3PlayerWitcherStateMeditation;
+		//var currentStateName : name;
+		//
+		//currentStateName = GetCurrentStateName();
+		//
+		//if(currentStateName == 'MeditationWaiting')
+		//{
+		//	waitt = (W3PlayerWitcherStateMeditationWaiting)GetCurrentState();
+		//	if(waitt)
+		//	{
+		//		waitt.StopRequested(forceCloseUI);
+		//	}
+		//}
+		//else if(currentStateName == 'Meditation')
+		//{
+		//	medd = (W3PlayerWitcherStateMeditation)GetCurrentState();
+		//	if(medd)
+		//	{
+		//		medd.StopRequested(forceCloseUI);
+		//	}
+		//}
+		ModEndMeditation();
+		//---=== modFriendlyMeditation ===---
 		
 		
 		
@@ -8977,6 +9038,158 @@ statemachine class W3PlayerWitcher extends CR4Player
 			DisplayActionDisallowedHudMessage(EIAB_MeditationWaiting, false, false, true, false);
 		}
 	}
+	
+	//---=== modFriendlyMeditation ===---
+	public function ModCanMeditate(optional isPlayerMeditatingInBed : bool) : bool
+	{
+		if( isPlayerMeditatingInBed )
+			return true;
+		
+		//checking everything for Preparations compatibility
+		if( !CanMeditate() )
+			return false;
+		
+		if( !CanMeditateWait(true) )
+			return false;
+		
+		if( !CanMeditateHere() )
+			return false;
+		
+		if( !ModCanMeditateHereExt() )
+			return false;
+		
+		return true;
+	}
+	
+	public function ModCanMeditateHereExt() : bool
+	{
+		if( IsUsingVehicle() || IsSwimming () || IsDiving() )
+			return false;
+		
+		if( ((CMovingPhysicalAgentComponent)GetMovingAgentComponent()).GetSubmergeDepth() < 0 )
+			return false;
+		
+		return true;
+	}
+	
+	public function ModStartMeditation(optional isPlayerMeditatingInBed : bool, optional isFromClock : bool, optional endTime : float) : bool
+	{
+		if( !ModCanMeditate(isPlayerMeditatingInBed) )
+			return false;
+	
+		if( theGame.GetGuiManager().IsAnyMenu() )
+			theGame.GetGuiManager().GetRootMenu().CloseMenu();
+			
+		if( !IsMeditating() && !IsSkippingTime() )
+		{
+			medIsPlayerMeditatingInBed = isPlayerMeditatingInBed;
+			medIsFromClock = isFromClock;
+			medEndTime = endTime;
+			SetBehaviorVariable('MeditateAbort', 0);
+			PushState('Meditation');
+			return true;
+		}
+		else
+		{
+			if( IsSkippingTime() )
+			{
+				MeditationEndFastforward();
+			}
+			if( IsMeditating() )
+			{
+				medIsPlayerMeditatingInBed = isPlayerMeditatingInBed;
+				medIsFromClock = isFromClock;
+				medEndTime = endTime;
+				SetBehaviorVariable('MeditateAbort', 0);
+				if( isFromClock )
+					((W3PlayerWitcherStateMeditation)GetState( 'Meditation' )).StartFastforward();
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public function ModEndMeditation()
+	{
+		if( IsMeditating() || IsSkippingTime() )
+		{
+			SetBehaviorVariable('MeditateAbort', 1);
+			PopState();
+			medIsPlayerMeditatingInBed = false;
+			medIsFromClock = false;
+			medEndTime = -1;
+			if( theGame.GetGuiManager().IsAnyMenu() )
+				theGame.GetGuiManager().GetRootMenu().CloseMenu();
+		}
+	}
+	
+	private var medIsPlayerMeditatingInBed : bool;
+	default medIsPlayerMeditatingInBed = false;
+	public function GetIsPlayerMeditatingInBed() : bool
+	{
+		return medIsPlayerMeditatingInBed;
+	}
+	
+	private var medEndTime : float;
+	default medEndTime = -1;
+	public function GetMeditationTargetTime() : float
+	{
+		return medEndTime;
+	}
+	
+	private var medIsFromClock : bool;
+	default medIsFromClock = false;
+	public function GetMeditationStartedByClock() : bool
+	{
+		return medIsFromClock;
+	}
+	
+	public function MeditationRefill( gameTimeSecs : float ) : bool
+	{
+		if ( fmedAutorefillAlchemy && gameTimeSecs >= fmedRefillIntervalSeconds )
+		{
+			inv.SingletonItemsRefillAmmo();
+			return true;
+		}
+		return false;
+	}
+	
+	public function CheckWitcherHouseBuffs( gameTimeSecs : float ) : bool
+	{
+		if ( fmedApplyWitcherHouseBuffs && GetIsPlayerMeditatingInBed() && CeilF(gameTimeSecs/3600.0) >= fmedWitcherHouseBuffsHours )
+		{
+			ApplyWitcherHouseBuffs();
+			return true;
+		}
+		return false;
+	}
+	
+	timer function DeSpawnCampFireTimer(dt : float, id : int)
+	{
+		spawnedCampFire.ToggleFire( false );
+		spawnedCampFire.Destroy();
+		spawnedCampFire = NULL;
+	}
+	
+	public function MeditationStartFastforward()
+	{
+		if( IsMeditating() )
+		{
+			medIsFromClock = false;
+			((W3PlayerWitcherStateMeditation)GetState( 'Meditation' )).StartFastforward();
+		}
+	}
+	
+	public function MeditationEndFastforward()
+	{
+		if( IsSkippingTime() )
+		{
+			((W3PlayerWitcherStateMeditation)GetState( 'Meditation' )).EndFastforward();
+			medIsFromClock = false;
+		}
+	}
+	//---=== modFriendlyMeditation ===---
 	
 	public function Runeword10Triggerred()
 	{

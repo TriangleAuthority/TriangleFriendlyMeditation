@@ -7,297 +7,229 @@
 
 
 
+//---=== modFriendlyMeditation ===---
+//reworked
 state Meditation in W3PlayerWitcher extends MeditationBase
 {
-	private var meditationPointHeading : float;				
-	private var meditationHeadingSet : bool;				
-	private var stopRequested : bool;						
-	private var isSitting : bool;							
+	private var meditationIdle, startedFastforward : bool;
+	private var noSaveLock : int;
 	
-	
-	private var closeUIOnStop : bool;						
-	private var cameraIsLeavingState : bool;				
-	private var isEntryFunctionLocked : bool;				
-	private var scheduledGoToWaiting : bool;				
-	private var changedContext : bool;						
-	
-		default scheduledGoToWaiting = false;
-	
-	
-
-	event OnEnterState( prevStateName : name )
+	public function StartFastforward()
 	{
-		parent.AddAnimEventCallback('OpenUI','OnAnimEvent_OpenUI');
-		
-		super.OnEnterState(prevStateName);
-		
-		meditationHeadingSet = false;
-		cameraIsLeavingState = false;
-		
-		if(prevStateName != 'MeditationWaiting')
+		if( meditationIdle && !startedFastforward )
 		{
-			stopRequested = false;
-			closeUIOnStop = false;
+			startedFastforward = true;
+			if( virtual_parent.GetCurrentStateName() != 'MeditationWaiting' )
+				virtual_parent.PushState( 'MeditationWaiting' );
 		}
-		
-		
-		thePlayer.OnMeleeForceHolster( true );
-		thePlayer.OnRangedForceHolster( true );
-		
-		InitState(prevStateName);
+	}
+
+	public function EndFastforward()
+	{
+		if( startedFastforward )
+		{
+			startedFastforward = false;
+			if( virtual_parent.GetCurrentStateName() == 'MeditationWaiting' )
+				virtual_parent.PopState();
+		}
+	}
+
+	public function IsMeditationIdle() : bool
+	{
+		return meditationIdle;
 	}
 	
+	private function SetMeditationIdle()
+	{
+		meditationIdle = true;
+		if ( !GetFMeditationConfig().HotkeyManualFastforward() || virtual_parent.GetMeditationStartedByClock() )
+			StartFastforward();
+	}
+
+	event OnBehaviorGraphNotification( notificationName : name, stateName : name )
+	{
+		if ( virtual_parent.GetPlayerAction() == PEA_Meditation )
+		{
+			if( notificationName == 'OnPlayerActionStartFinished' && !meditationIdle )
+			{
+				SetMeditationIdle();
+			}
+		}
+		parent.OnBehaviorGraphNotification( notificationName, stateName );
+	}
+	
+	event OnEnterState( prevStateName : name )
+	{
+		super.OnEnterState( prevStateName );
+		
+		//theGame.witcherLog.AddMessage("Entering Meditation: " + prevStateName);
+		
+		if( virtual_parent.GetBehaviorVariable('MeditateAbort') > 0 )
+		{
+			virtual_parent.ModEndMeditation();
+		}
+		else if(prevStateName != 'MeditationWaiting')
+		{
+			virtual_parent.SetBehaviorVariable( 'MeditateWithIgnite', 0 );
+			virtual_parent.SetBehaviorVariable( 'HasCampfire', 0 );
+			meditationIdle = false;
+			BlockGameplayActions( true );
+			theGame.CreateNoSaveLock( "Meditation", noSaveLock );
+			HideItemsInHands();
+			InternalBeginMeditation();
+			thePlayer.RemoveTimer( 'MeditationModulesOffTimer' );
+			thePlayer.AddTimer( 'MeditationModulesOnTimer', 0.1, false ); //FHUD compatibility
+		}
+	}
+
 	event OnLeaveState( nextStateName : name )
 	{
+		//theGame.witcherLog.AddMessage("Exiting Meditation: " + nextStateName);
 		
 		if(nextStateName != 'MeditationWaiting')
 		{
-			FactsAdd('MeditationWaitFinished', 1, 1);					
+			meditationIdle = false;
+			BlockGameplayActions( false );
+			theGame.ReleaseNoSaveLock( noSaveLock );
+			InternalEndMeditation();
+			thePlayer.RemoveTimer( 'MeditationModulesOnTimer' );
+			thePlayer.AddTimer( 'MeditationModulesOffTimer', 0.1, false ); //FHUD compatibility
+			FactsAdd( 'MeditationWaitFinished', 1, 1 );
 		}
-			
 		
-		virtual_parent.UnblockAction(EIAB_DrawWeapon, 'Meditation');
-		
-		virtual_parent.SetBehaviorVariable( 'MeditateAbort', 0 );
-		
-		super.OnLeaveState(nextStateName);
-		
-		
+		super.OnLeaveState( nextStateName );
 	}
 	
-	entry function InitState(prevStateName : name)
+	event OnPlayerTickTimer( deltaTime : float )
 	{
-		var actionSuccess : bool;
+		super.OnPlayerTickTimer( deltaTime );
 		
-		virtual_parent.LockEntryFunction( true );
-		isEntryFunctionLocked = true;
-		
-		virtual_parent.SetBehaviorVariable('MeditateAbort', 0);		
-		
-		if(prevStateName != 'MeditationWaiting')
+		if ( virtual_parent.GetPlayerAction() != PEA_Meditation && virtual_parent.GetPlayerAction() != PEA_GoToSleep )
 		{
-			isSitting = false;
-			
-			
-			virtual_parent.BlockAllActions('Meditation', true, ,false);
-						
-			
-			while(!meditationHeadingSet)
-			{
-				Sleep(0.1);
-			}
-			
-			
-			virtual_parent.BlockAction(EIAB_DrawWeapon, 'Meditation', false);
-			virtual_parent.OnMeleeForceHolster(true);
-			virtual_parent.OnRangedForceHolster(true);
-			
-			
-			virtual_parent.BlockAllActions('Meditation', false);
-			virtual_parent.BlockAction(EIAB_DrawWeapon, 'Meditation', false);
-			
-			if(!theGame.GetGuiManager().IsAnyMenu())
-			{
-				changedContext = true;
-				theInput.StoreContext( 'Meditation' );
-			}
-			else
-			{
-				changedContext = false;
-			}
-			
-			if( !((W3WitcherBed)theGame.GetEntityByTag( 'witcherBed' )).GetWasUsed() )
-			{
-				
-				virtual_parent.SetBehaviorVariable('MeditateWithIgnite', 0);
-				actionSuccess = virtual_parent.PlayerStartAction(PEA_Meditation);
-			}
-			else
-			{
-				actionSuccess = true;
-			}
+			virtual_parent.ModEndMeditation();
+		}
+	}
+	
+	private function InternalBeginMeditation()
+	{
+		startedFastforward = false;
+		if ( virtual_parent.GetIsPlayerMeditatingInBed() )
+		{
+			virtual_parent.SetBehaviorVariable( 'MeditateWithIgnite', 0 );
+			virtual_parent.SetBehaviorVariable( 'HasCampfire', 0 );
+			SetMeditationIdle();
 		}
 		else
 		{
-			actionSuccess = true;
-			
-			if(!stopRequested)
+			if ( virtual_parent.fMeditationConfig.SpawnCampFire() )
 			{
-				
-				
+				if ( virtual_parent.fmedCanSpawnCampfire )
+				{
+					if ( !virtual_parent.spawnedCampFire || VecDistanceSquared2D(virtual_parent.spawnedCampFire.GetWorldPosition(), thePlayer.GetWorldPosition()) > 9.f )
+					{
+						virtual_parent.SetBehaviorVariable( 'MeditateWithIgnite', 1 );
+						thePlayer.AddTimer( 'SpawnCampFireTimer', 4.5, false );
+					}
+				}
+				else // spawning was turned off by Preparations
+				{
+					thePlayer.AddTimer( 'CampFireErrorMessageTimer', 0.1, false );
+				}
 			}
+			virtual_parent.SetBehaviorVariable( 'HasCampfire', 0 );
+			virtual_parent.PlayerStartAction( PEA_Meditation );
 		}
+	}
+	
+	timer function SpawnCampFireTimer(dt : float, id : int)
+	{
+		var template : CEntityTemplate;
+		var pos : Vector;
+		var z : float;
+		var rot : EulerAngles;
 		
-		virtual_parent.LockEntryFunction( false );
-		isEntryFunctionLocked = false;
-		
-		
-		if(!actionSuccess)
+		template = (CEntityTemplate)LoadResource( "environment\decorations\light_sources\campfire\campfire_01.w2ent", true);
+		pos = thePlayer.GetWorldPosition() + VecFromHeading( thePlayer.GetHeading() ) * Vector(0.8, 0.8, 0);
+		if( theGame.GetWorld().NavigationComputeZ( pos, pos.Z - 128, pos.Z + 128, z ) )
 		{
-			StopRequested(true);
+			pos.Z = z;
 		}
-		
-		
-		if(scheduledGoToWaiting)
+		if( theGame.GetWorld().PhysicsCorrectZ( pos, z ) )
 		{
-			scheduledGoToWaiting = false;
-			virtual_parent.PushState('MeditationWaiting');
+			pos.Z = z;
 		}
+		rot = thePlayer.GetWorldRotation();
+		virtual_parent.spawnedCampFire = (W3Campfire)theGame.CreateEntity(template, pos, rot);
+		virtual_parent.spawnedCampFire.ToggleFire( true );
+		thePlayer.AddTimer( 'CampFireResourcesTimer', 0.1, false ); //Preparations compatibility
+	}
+	
+	private function InternalEndMeditation()
+	{
+		var wbed : W3WitcherBed;
+		
+		thePlayer.RemoveTimer( 'SpawnCampFireTimer' );
+		wbed = (W3WitcherBed)theGame.GetEntityByTag( 'witcherBed' );
+		if ( wbed.GetWasUsed() )
+		{
+			GetWitcherPlayer().ManageSleeping();
+			wbed.SetWasUsed( false );
+		}
+		if ( startedFastforward )
+		{
+			EndFastforward();
+		}
+		if ( virtual_parent.spawnedCampFire && !GetFMeditationConfig().DoNotDespawnCampFire() )
+		{
+			virtual_parent.SetBehaviorVariable( 'HasCampfire', 1 );
+			thePlayer.AddTimer( 'DeSpawnCampFireTimer', 1.5, false );
+		}
+		if ( virtual_parent.GetPlayerAction() == PEA_Meditation )
+		{
+			virtual_parent.PlayerStopAction( PEA_Meditation );
+		}
+		virtual_parent.SetBehaviorVariable('MeditateAbort', 0);
+	}
+	
+	private function HideItemsInHands()
+	{
+		if ( virtual_parent.GetCurrentMeleeWeaponType() != PW_None )
+		{
+			virtual_parent.OnEquipMeleeWeapon( PW_None, true, true );
+		}
+		if ( virtual_parent.IsHoldingItemInLHand() )
+		{
+			virtual_parent.HideUsableItem( true );
+		}
+		if ( virtual_parent.rangedWeapon )
+		{
+			virtual_parent.OnRangedForceHolster( true, true, false );
+		}
+	}
+	
+	function BlockGameplayActions( lock : bool )
+	{
+		var exceptions : array< EInputActionBlock >;
+		
+		exceptions.PushBack( EIAB_OpenMeditation );
+		exceptions.PushBack( EIAB_MeditationWaiting );
+		exceptions.PushBack( EIAB_OpenFastMenu );
+		exceptions.PushBack( EIAB_OpenInventory );
+		exceptions.PushBack( EIAB_OpenAlchemy );
+		exceptions.PushBack( EIAB_OpenCharacterPanel );
+		exceptions.PushBack( EIAB_OpenJournal );
+		exceptions.PushBack( EIAB_OpenMap );
+		exceptions.PushBack( EIAB_OpenGlossary );
+		exceptions.PushBack( EIAB_RadialMenu );
+	
+		if ( lock )
+		{
+			thePlayer.BlockAllActions( 'Meditation', true, exceptions );
+		}	
 		else
 		{
-			Loop();
-		}
-	}
-	
-	public function SetMeditationPointHeading(head : float)
-	{
-		meditationPointHeading = head;
-		meditationHeadingSet = true;
-	}
-	
-	public function IsSitting() : bool
-	{
-		return isSitting;
-	}
-	
-	event OnAnimEvent_OpenUI( animEventName : name, animEventType : EAnimationEventType, animInfo : SAnimationEventAnimInfo )
-	{
-		var mutagen : CBaseGameplayEffect;
-		
-		if( !stopRequested )	
-		{
-			isSitting = true;
-			cameraIsLeavingState = false;
-						
-			
-			if(thePlayer.HasBuff(EET_Mutagen06))
-			{
-				mutagen = thePlayer.GetBuff(EET_Mutagen06);
-				thePlayer.RemoveAbilityAll(mutagen.GetAbilityName());
-			}
-			
-			
-			
-			theGame.RequestMenuWithBackground( 'MeditationClockMenu', 'CommonMenu' );
-		}
-	}
-	
-	
-	
-	public function StopRequested(optional closeUI : bool)
-	{
-		stopRequested = true;
-		closeUIOnStop = closeUI;
-		virtual_parent.SetBehaviorVariable('MeditateAbort', 1);
-	}
-	
-	private entry function Loop()
-	{
-		while(!stopRequested)
-		{
-			Sleep(0.2);
-		}
-		StopMeditation();
-	}
-	
-	
-	public latent function StopMeditation()
-	{
-		var commonMenuRef 	: CR4CommonMenu;
-		var l_bed			: W3WitcherBed;
-	
-		cameraIsLeavingState = true;
-		
-		
-		if(closeUIOnStop)
-		{
-			commonMenuRef = theGame.GetGuiManager().GetCommonMenu();
-			if (commonMenuRef)
-			{
-				commonMenuRef.CloseMenu();
-			}
-		}		
-	
-		virtual_parent.SetBehaviorVariable('HasCampfire', 0);
-		
-		l_bed = (W3WitcherBed)theGame.GetEntityByTag( 'witcherBed' );
-		
-		if( !l_bed.GetWasUsed() )
-		{
-			virtual_parent.PlayerStopAction(PEA_Meditation);
-		}
-		else
-		{
-			virtual_parent.PlayerStopAction( PEA_GoToSleep );
-		}
-		
-		if( l_bed.GetWasUsed() )
-		{
-			l_bed.SetWasUsed( false );
-		}
-		
-		
-		if(changedContext)
-		{
-			theInput.RestoreContext('Meditation', false);
-		}
-								
-		
-		virtual_parent.WaitForBehaviorNodeDeactivation( 'PlayerActionEnd', 10);
-		
-		if(virtual_parent.GetCurrentStateName() == 'Meditation')
-			virtual_parent.PopState(true);		
-	}
-	
-	
-	public function MeditationWait(targetHour : int)
-	{
-		LogChannel( 'CLOCK', "MeditationWait, targetHour "+targetHour);
-		virtual_parent.SetWaitTargetHour(targetHour);
-		
-		
-		if(!isEntryFunctionLocked)
-			virtual_parent.PushState('MeditationWaiting');
-		else
-			scheduledGoToWaiting = true;
-	}
-		
-	
-	
-	event OnGameCameraTick( out moveData : SCameraMovementData, dt : float )
-	{
-		var rotation : EulerAngles = parent.GetWorldRotation();
-		
-		theGame.GetGameCamera().ChangePivotRotationController( 'Exploration' );
-		theGame.GetGameCamera().ChangePivotDistanceController( 'Default' );
-		theGame.GetGameCamera().ChangePivotPositionController( 'Default' );
-		
-		moveData.pivotDistanceController = theGame.GetGameCamera().GetActivePivotDistanceController();
-		moveData.pivotPositionController = theGame.GetGameCamera().GetActivePivotPositionController();
-		moveData.pivotRotationController = theGame.GetGameCamera().GetActivePivotRotationController();		
-		
-		if(!cameraIsLeavingState)
-		{
-			moveData.pivotRotationController.SetDesiredHeading( rotation.Yaw + 180.f, 0.1f );
-			moveData.pivotRotationController.SetDesiredPitch(-15, 0.3);
-			moveData.pivotPositionController.offsetZ = 0.5;
-			moveData.pivotDistanceController.SetDesiredDistance( 3.8f );
-			
-			super.OnGameCameraTick(moveData, dt);
-
-			return true;
-		}
-		
-		return false;
-	}
-	
-	event OnGameCameraPostTick( out moveData : SCameraMovementData, dt : float )
-	{
-		var rotation : EulerAngles = parent.GetWorldRotation();
-		
-		if( cameraIsLeavingState )
-		{
-			moveData.pivotRotationController.SetDesiredHeading( rotation.Yaw, 0.1f );
+			thePlayer.BlockAllActions( 'Meditation', false);
 		}
 	}
 }
+//---=== modFriendlyMeditation ===---

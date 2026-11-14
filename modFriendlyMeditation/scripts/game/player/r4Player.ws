@@ -3915,6 +3915,20 @@ statemachine abstract import class CR4Player extends CPlayer
 		questCameraRequest = cameraRequest;
 	}
 	
+	//---=== modFriendlyMeditation ===---
+	private var fmedCameraRequestTimeStamp : float;
+	
+	public function fmedRequestCameraHeading()
+	{
+		fmedCameraRequestTimeStamp = theGame.GetEngineTimeAsSeconds();
+	}
+	
+	public function fmedResetCameraRequest()
+	{
+		fmedCameraRequestTimeStamp = 0;
+	}
+	//---=== modFriendlyMeditation ===---
+	
 	event OnGameCameraPostTick( out moveData : SCameraMovementData, dt : float )
 	{
 		var ent : CEntity;
@@ -3958,6 +3972,23 @@ statemachine abstract import class CR4Player extends CPlayer
 				}
 			}
 		}
+		//---=== modFriendlyMeditation ===---
+		else if( fmedCameraRequestTimeStamp > 0 )
+		{
+			if( fmedCameraRequestTimeStamp + 1.5f < theGame.GetEngineTimeAsSeconds() )
+			{
+				fmedResetCameraRequest();
+			}
+			else
+			{
+				angles = thePlayer.GetWorldRotation();
+				moveData.pivotRotationController.SetDesiredHeading( angles.Yaw );
+				moveData.pivotRotationController.SetDesiredPitch( angles.Pitch );
+				moveData.pivotRotationValue.Yaw = LerpAngleF( 2.f * dt, moveData.pivotRotationValue.Yaw, angles.Yaw );
+				moveData.pivotRotationValue.Pitch = LerpAngleF( 1.f * dt, moveData.pivotRotationValue.Pitch, angles.Pitch );
+			}
+		}
+		//---=== modFriendlyMeditation ===---
 	}
 	
 	var wasRunning : bool;
@@ -10089,6 +10120,11 @@ statemachine abstract import class CR4Player extends CPlayer
 		var locks : array< SInputActionLock >;
 		var i : int;
 		
+		//---=== modFriendlyMeditation ===---
+		var witcher : W3PlayerWitcher = GetWitcherPlayer();
+		if( witcher && (witcher.IsMeditating() || witcher.IsSkippingTime()) )
+			return true;
+		//---=== modFriendlyMeditation ===---
 		
 		if((action == EIAB_Fists || action == EIAB_SwordAttack || action == EIAB_Signs || action == EIAB_LightAttacks || action == EIAB_HeavyAttacks || action == EIAB_SpecialAttackLight || action == EIAB_SpecialAttackHeavy) && (HasBuff(EET_Stagger) || HasBuff(EET_LongStagger)) )
 		{

@@ -1,0 +1,44 @@
+;meta[language=ru]
+; id      |key(hex)|key(str)| text
+;
+; comment lines use ; as first character
+; all comment lines (except the two line header) will be ignored
+;
+2112067000|        |panel_Mods|Моды
+2112067001|        |panel_friendly_meditation|Friendly Meditation
+2112067008|        |HoldToMeditate|Friendly Meditation: начать/закончить медитацию
+2112067010|        |option_fmed_maxHoursPerMinute|Максимальное ускорение времени (игровых минут в сек.)
+2112067011|        |option_fmed_hoursPerMinutePerSecond|Ускорение времени в секунду (игровых минут в сек. в сек.)
+2112067012|        |option_fmed_useTimescale|Ускорять анимации во время медитации (не рекомендуется)
+2112067013|        |preset_Mods_friendly_meditation_fmed_meditation|Предустановки медитации
+2112067014|        |preset_value_fmed_defaults|По умолчанию
+2112067015|        |option_fmed_spawnCampfire|Разводить костёр
+2112067016|        |preset_value_fmed_timescale|С ускорением
+2112067017|        |option_fmed_hotkeyBehavior|Поведение горячей клавиши медитации
+2112067018|        |preset_value_fmed_hotkeyBehavior_hold|Ускорение времени
+2112067019|        |preset_value_fmed_hotkeyBehavior_toggle|Переключить ускорение
+2112067020|        |preset_value_fmed_hotkeyBehavior_wait|Вход в режим медитации
+2112067021|        |MeditationFastForward|Friendly Meditation: ускорение времени
+2112067022|        |ToggleSpawnCampFire|Friendly Meditation: вкл/выкл костёр
+2112067023|        |fmedSpawnCampFireOn|Friendly Meditation: костёр включен
+2112067024|        |fmedSpawnCampFireOff|Friendly Meditation: костёр выключен
+2112067025|        |option_fmed_useMeditationCam|Включить камеру медитации
+2112067026|        |option_fmed_camFacePlayer|Камера медитации смотрит на игрока
+2112067027|        |option_fmed_camFOV|FOV в режиме медитации
+2112067028|        |option_fmed_camPitch|Наклон камеры медитации
+2112067029|        |option_fmed_camXOffset|Смещение камеры медитации по X
+2112067030|        |panel_fmed_meditation|Медитация
+2112067031|        |panel_fmed_camera|Камера
+2112067032|        |preset_value_fmed_cam_off|Выкл.
+2112067034|        |preset_Mods_friendly_meditation_fmed_camera|Предустановки камеры
+2112067035|        |preset_value_fmed_notimescale|Без ускорения
+2112067036|        |option_fmed_camDistance|Расстояние камеры медитации
+2112067037|        |preset_value_fmed_fov_only|Только FOV
+2112067038|        |option_fmed_camZOffset|Смещение камеры медитации по Z
+2112067039|        |preset_value_fmed_sightseeing|Обзор
+2112067040|        |option_fmed_doNotDespawnCampfire|Не тушить костёр
+2112067041|        |message_fmed_started_fastforward|Ожидание началось
+2112067042|        |message_fmed_ended_fastforward|Ожидание закончилось
+2112067043|        |panel_button_meditation_stop|Закончить медитацию
+2112067044|        |preset_value_fmed_prep_def|Preparations
+2112067045|        |option_fmed_beSilent|Не выводить текстовые сообщения

@@ -7,235 +7,157 @@
 
 
 
+//---=== modFriendlyMeditation ===---
+//reworked
 state MeditationWaiting in W3PlayerWitcher extends MeditationBase
 {
-	private const var TARGET_HOURS_PER_MINUTE : float;		
-	private const var BLEND_TIME_SECONDS_REAL : float;		
+	private var updatedGameTime : GameTime;
+	private var storedHoursPerMinute, hoursPerMinute : float;
+	private var startedFastforwardSecs, targetTime : float;
+	private var fullHealth, isFromClock : bool;
+	private var storedGameTime : GameTime;
+	private var refilled, timescaleTriggered : bool;
+	private var maxHPM, HPMPerSecond : float;
 	
-	private var storedHoursPerMinute : float;				
-	private var waitStartTime : GameTime;					
-	private var requestedTargetTime : GameTime;				
-	private var abortRequested : bool;						
-	
-		default TARGET_HOURS_PER_MINUTE = 320.0;
-		default BLEND_TIME_SECONDS_REAL = 2;
-
 	event OnEnterState( prevStateName : name )
-	{
-		var requestedTargetHour : int;
-		var fastForward : CGameFastForwardSystem;
+	{	
+		super.OnEnterState( prevStateName );
 		
-		fastForward = theGame.GetFastForwardSystem();
-		fastForward.BeginFastForward();
-	
-		virtual_parent.LockEntryFunction( true );
+		//theGame.witcherLog.AddMessage("Entering MeditationWaiting: " + prevStateName);
 		
-		storedHoursPerMinute = theGame.GetHoursPerMinute();
-		waitStartTime = theGame.GetGameTime();
-		requestedTargetHour = virtual_parent.GetWaitTargetHour();
-		
-		if(requestedTargetHour > GameTimeHours(waitStartTime))
-			requestedTargetTime = GameTimeCreate(GameTimeDays(waitStartTime), requestedTargetHour, 0, 0);
+		if( virtual_parent.GetBehaviorVariable('MeditateAbort') > 0 )
+		{
+			virtual_parent.ModEndMeditation();
+		}
 		else
-			requestedTargetTime = GameTimeCreate(GameTimeDays(waitStartTime) + 1, requestedTargetHour, 0, 0);
-				
-		
-		FactsSet('MeditationWaitStartDay', GameTimeDays(waitStartTime));		
-		FactsSet('MeditationWaitStartHour', GameTimeHours(waitStartTime));
-		FactsSet('MeditationStarted', 1);
-		
-		virtual_parent.LockEntryFunction( false );
-		
-		MeditationWaiting_Loop();
+		{
+			BlockGameplayActions( true );
+			maxHPM = virtual_parent.fMeditationConfig.MaxHPM();
+			HPMPerSecond = virtual_parent.fMeditationConfig.HPMPerSecond();
+			timescaleTriggered = false;
+			refilled = false;
+			storedHoursPerMinute = theGame.GetHoursPerMinute();
+			startedFastforwardSecs = theGame.GetEngineTimeAsSeconds();
+			updatedGameTime = theGame.GetGameTime();
+			storedGameTime = theGame.GetGameTime();
+			isFromClock = virtual_parent.GetMeditationStartedByClock();
+			targetTime = virtual_parent.GetMeditationTargetTime();
+			hoursPerMinute = storedHoursPerMinute;
+			fullHealth = ( virtual_parent.GetStat( BCS_Vitality ) >= virtual_parent.GetStatMax( BCS_Vitality ) );
+			theGame.GetFastForwardSystem().BeginFastForward();
+			FactsSet('MeditationWaitStartDay', GameTimeDays(storedGameTime));		
+			FactsSet('MeditationWaitStartHour', GameTimeHours(storedGameTime));
+			FactsSet('MeditationStarted', 1);
+			if( !virtual_parent.fMeditationConfig.BeSilent() )
+				theGame.GetGuiManager().ShowNotification( GetLocStringByKeyExt( "message_fmed_started_fastforward" ), , true );
+		}
 	}
 	
 	event OnLeaveState( nextStateName : name )
 	{
-		var fastForward : CGameFastForwardSystem;
+		//theGame.witcherLog.AddMessage("Exiting MeditationWaiting: " + nextStateName);
 		
-		fastForward = theGame.GetFastForwardSystem();
-		fastForward.AllowFastForwardSelfCompletion();
-		
+		theGame.GetFastForwardSystem().AllowFastForwardSelfCompletion();
+		theGame.SetHoursPerMinute( storedHoursPerMinute );
+		if ( timescaleTriggered )
+		{
+			theGame.RemoveTimeScale( 'FriendlyMeditation' );
+			timescaleTriggered = false;
+		}
 		FactsSet('MeditationStarted', 0);
-		theGame.SetHoursPerMinute(storedHoursPerMinute);
+		BlockGameplayActions( false );
+		virtual_parent.CheckWitcherHouseBuffs(GameTimeToSeconds(theGame.GetGameTime()) - GameTimeToSeconds(storedGameTime));
+		if( !virtual_parent.fMeditationConfig.BeSilent() )
+			theGame.GetGuiManager().ShowNotification( GetLocStringByKeyExt( "message_fmed_ended_fastforward" ), , true );
 		
-		if(abortRequested)
+		super.OnLeaveState( nextStateName );
+	}
+	
+	event OnPlayerTickTimer( deltaTime : float )
+	{
+		super.OnPlayerTickTimer( deltaTime );
+		
+		if ( isFromClock && targetTime == GameTimeHours( theGame.GetGameTime() ) )
 		{
-			LatentHackMeditationWaitingAbort();
+			virtual_parent.ModEndMeditation();
 		}
-		
-		super.OnLeaveState(nextStateName);
-	}
-	
-	entry function LatentHackMeditationWaitingAbort()
-	{
-		var medd : W3PlayerWitcherStateMeditation;
-		
-		medd = (W3PlayerWitcherStateMeditation)thePlayer.GetState('Meditation');
-		medd.StopMeditation();
-	}
-	
-	private entry function MeditationWaiting_Loop()
-	{
-		var blendInTime : float;
-	
-		blendInTime = BlendIn();
-		
-		if(!abortRequested)
-			KeepWaiting(theGame.GetGameTime() - waitStartTime);
-		
-		BlendOut(2 * BLEND_TIME_SECONDS_REAL - blendInTime);
-		
-		
-		
-		
-		theGame.SetHoursPerMinute(storedHoursPerMinute);
-		
-		
-		
-		if(!abortRequested)
-			theGame.SetGameTime(requestedTargetTime, false);
-		
-		
-		GetWitcherPlayer().MeditationRestoring( FinalHack_GetSimulateBuffTime() );				
-		
-		
-		abortRequested = false;
-		virtual_parent.PopState();
-		virtual_parent.PushState('Meditation');	
-	}
-	
-	
-	private latent function BlendIn() : float
-	{
-		var blendStartTime, currentEngineTime : EngineTime;
-		var totalBlendTimeSecsReal, blendedHPM : float;
-		var halfMeditationTime  : GameTime;
-	
-		blendStartTime = theGame.GetEngineTime();
-		
-		
-		halfMeditationTime = waitStartTime + GameTimeCreateFromGameSeconds( (GameTimeToSeconds(requestedTargetTime) - GameTimeToSeconds(waitStartTime)) / 2);
-		
-		while(true)
+		else
 		{
-			currentEngineTime = theGame.GetEngineTime();
-			totalBlendTimeSecsReal = EngineTimeToFloat(currentEngineTime - blendStartTime);
-							
-			
-			if(totalBlendTimeSecsReal >= BLEND_TIME_SECONDS_REAL || theGame.GetGameTime() >= halfMeditationTime || abortRequested)
-				break;
-			
-			blendedHPM = storedHoursPerMinute + (TARGET_HOURS_PER_MINUTE - storedHoursPerMinute) * totalBlendTimeSecsReal / BLEND_TIME_SECONDS_REAL;
-			blendedHPM = MinF(TARGET_HOURS_PER_MINUTE, blendedHPM);
-			
-			theGame.SetHoursPerMinute(blendedHPM);
-			
-			SleepOneFrame();
-		}
-		
-		return totalBlendTimeSecsReal;
-	}
-	
-	
-	private latent function BlendOut(estimatedBlendTimeReal : float)
-	{
-		var blendStartTime, currentEngineTime : EngineTime;
-		var totalBlendTimeSecsReal, blendedHPM : float;
-		var currentGameTime : GameTime;
-	
-		blendStartTime = theGame.GetEngineTime();
-		
-		while(true)
-		{
-			currentGameTime = theGame.GetGameTime();
-			currentEngineTime = theGame.GetEngineTime();
-			totalBlendTimeSecsReal = EngineTimeToFloat(currentEngineTime - blendStartTime);
-				
-			
-			if(currentGameTime >= requestedTargetTime)
-				break;
-			
-			
-			if(abortRequested)
-				blendedHPM = TARGET_HOURS_PER_MINUTE - 4 * (TARGET_HOURS_PER_MINUTE - storedHoursPerMinute) * totalBlendTimeSecsReal / estimatedBlendTimeReal;
-			else
-				blendedHPM = TARGET_HOURS_PER_MINUTE - (TARGET_HOURS_PER_MINUTE - storedHoursPerMinute) * totalBlendTimeSecsReal / estimatedBlendTimeReal;
-			
-			blendedHPM = MaxF(storedHoursPerMinute, blendedHPM);
-			
-			
-			if(blendedHPM == storedHoursPerMinute)
-				break;
-			
-			theGame.SetHoursPerMinute(blendedHPM);
-			
-			SleepOneFrame();
+			MeditationUpdate();
 		}
 	}
 	
-	
-	private latent function KeepWaiting(blendTime : GameTime)
+	private function MeditationUpdate()
 	{
-		var currentTime : GameTime;
-		var commonMenuRef : CR4CommonMenu;
-	
-		while(true)
+		var realTimeSecs, gameTimeSec : float;
+		
+		if ( GetDayPart( theGame.GetGameTime() ) != GetDayPart( updatedGameTime ) )
 		{
-			currentTime = theGame.GetGameTime();
-			
-			
-			if((currentTime + blendTime > requestedTargetTime) || abortRequested)
-				break;
-				
-			if ( thePlayer.IsThreatened() )
+			theGame.VibrateControllerVeryLight();
+		}
+		if ( !timescaleTriggered )
+		{
+			gameTimeSec = GameTimeToSeconds( theGame.GetGameTime() - updatedGameTime );
+			realTimeSecs = ConvertGameSecondsToRealTimeSeconds( gameTimeSec );
+			virtual_parent.UpdateEffectsAccelerated( realTimeSecs, hoursPerMinute / storedHoursPerMinute );
+		}
+		if ( !fullHealth )
+		{
+			fullHealth = NotifyOnHealthRegenEnded();
+		}
+		if ( !refilled )
+		{
+			refilled = MeditationCheckRefill();
+		}
+		if ( !timescaleTriggered )
+		{
+			if ( hoursPerMinute < maxHPM )
 			{
-				commonMenuRef = theGame.GetGuiManager().GetCommonMenu();
-				if (commonMenuRef)
-				{
-					commonMenuRef.CloseMenu();
-				}
+				hoursPerMinute = MinF( maxHPM, storedHoursPerMinute + ( theGame.GetEngineTimeAsSeconds() - startedFastforwardSecs ) * HPMPerSecond );
+				theGame.SetHoursPerMinute( hoursPerMinute );
 			}
-				
-			SleepOneFrame();
+			else if ( virtual_parent.fMeditationConfig.UseTimescale() )
+			{
+				timescaleTriggered = true;
+				theGame.GetFastForwardSystem().AllowFastForwardSelfCompletion();
+				theGame.SetHoursPerMinute( storedHoursPerMinute );
+				startedFastforwardSecs = 0;
+				theGame.SetTimeScale( hoursPerMinute / storedHoursPerMinute, 'FriendlyMeditation', 100 );
+			}
 		}
+		updatedGameTime = theGame.GetGameTime();
 	}
 	
-	
-	public function RequestWaitStop()
-	{		
-		abortRequested = true;
-	}
-	
-	
-	public function StopRequested(optional closeUI : bool)
+	private function NotifyOnHealthRegenEnded() : bool
 	{
-		var medd : W3PlayerWitcherStateMeditation;
-	
-		
-		RequestWaitStop();
-		
-		
-		medd = (W3PlayerWitcherStateMeditation)(thePlayer.GetState('Meditation'));
-		medd.StopRequested(closeUI);
-	}
-	
-	
-	private final function FinalHack_GetSimulateBuffTime() : float
-	{
-		var passedSecondsInGameTime, passedSecondsInRealTime : float;
-		var currTime : GameTime;
-		
-		
-		currTime = theGame.GetGameTime();
-		if( waitStartTime > currTime )
+		if ( virtual_parent.GetStat( BCS_Vitality ) >= virtual_parent.GetStatMax( BCS_Vitality ) )
 		{
-			return 0.f;
+			theGame.VibrateControllerLight();
+			return true;
 		}
+		return false;
+	}
+	
+	private function MeditationCheckRefill() : bool
+	{
+		return virtual_parent.MeditationRefill( GameTimeToSeconds(theGame.GetGameTime()) - GameTimeToSeconds(storedGameTime) );
+	}
+	
+	function BlockGameplayActions( lock : bool )
+	{
+		var exceptions : array< EInputActionBlock >;
 		
-		passedSecondsInGameTime = GameTimeToSeconds(currTime - waitStartTime);
-		passedSecondsInRealTime = ConvertGameSecondsToRealTimeSeconds(passedSecondsInGameTime);
-		
-		return passedSecondsInRealTime;
+		exceptions.PushBack( EIAB_OpenMeditation );
+		exceptions.PushBack( EIAB_MeditationWaiting );
+	
+		if ( lock )
+		{
+			thePlayer.BlockAllActions( 'MeditationWaiting', true, exceptions );
+		}	
+		else
+		{
+			thePlayer.BlockAllActions( 'MeditationWaiting', false);
+		}
 	}
 }
+//---=== modFriendlyMeditation ===---

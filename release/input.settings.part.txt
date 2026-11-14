@@ -1,0 +1,10 @@
+[Exploration]
+IK_N=(Action=HoldToMeditate,State=Duration,IdleTime=0.4)
+IK_Pad_RightThumb=(Action=HoldToMeditate,State=Duration,IdleTime=0.4)
+IK_Space=(Action=MeditationFastForward)
+IK_Pad_LeftThumb=(Action=MeditationFastForward)
+IK_End=(Action=ToggleSpawnCampFire)
+
+[MEDITATION_CLOCK_CONTEXT]
+IK_C=(Action=MeditationStop)
+IK_Pad_Y_TRIANGLE=(Action=MeditationStop)

@@ -1,0 +1,16 @@
+[modFriendlyMeditation]
+fmedMaxHoursPerMinute=60
+fmedHoursPerMinutePerSecond=10
+fmedUseTimescale=false
+fmedSpawnCampfire=false
+fmedDoNotDespawnCampfire=false
+fmedHotkeyBehavior=0
+
+[modFriendlyMeditationCamera]
+fmedUseMeditationCam=true
+fmedCamFacePlayer=true
+fmedCamFOV=40.0
+fmedCamDistance=3.8
+fmedCamPitch=-15.0
+fmedCamXOffset=0.5
+fmedCamZOffset=0.5

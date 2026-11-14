@@ -1,0 +1,44 @@
+;meta[language=de]
+; id      |key(hex)|key(str)| text
+;
+; comment lines use ; as first character
+; all comment lines (except the two line header) will be ignored
+;
+2112067000|        |panel_Mods|Mods
+2112067001|        |panel_friendly_meditation|Friendly Meditation
+2112067008|        |HoldToMeditate|Friendly meditation start/stop
+2112067010|        |option_fmed_maxHoursPerMinute|Maximale Geschwindigkeit der Zeit (ingame Minuten per Sekunde)
+2112067011|        |option_fmed_hoursPerMinutePerSecond|Beschleunigung per Sekunde (ingame Minuten per Sekunde per Sekunde)
+2112067012|        |option_fmed_useTimescale|Animationen während Meditiationen beschleunigen (nicht Empfohlen)
+2112067013|        |preset_Mods_friendly_meditation_fmed_meditation|Meditation presets
+2112067014|        |preset_value_fmed_defaults|Default
+2112067015|        |option_fmed_spawnCampfire|Spawn campfire
+2112067016|        |preset_value_fmed_timescale|Beschleunigung
+2112067017|        |option_fmed_hotkeyBehavior|Meditation hotkey behavior
+2112067018|        |preset_value_fmed_hotkeyBehavior_hold|Hold to advance time
+2112067019|        |preset_value_fmed_hotkeyBehavior_toggle|Hold to toggle advancing time
+2112067020|        |preset_value_fmed_hotkeyBehavior_wait|Hold to enter meditation mode
+2112067021|        |MeditationFastForward|Friendly meditation fast forward
+2112067022|        |ToggleSpawnCampFire|Friendly meditation toggle campfire
+2112067023|        |fmedSpawnCampFireOn|Friendly meditation campfire is on
+2112067024|        |fmedSpawnCampFireOff|Friendly meditation campfire is off
+2112067025|        |option_fmed_useMeditationCam|Use meditation camera
+2112067026|        |option_fmed_camFacePlayer|Meditation camera face player
+2112067027|        |option_fmed_camFOV|Meditation camera FOV
+2112067028|        |option_fmed_camPitch|Meditation camera pitch
+2112067029|        |option_fmed_camXOffset|Meditation camera X offset
+2112067030|        |panel_fmed_meditation|Meditation
+2112067031|        |panel_fmed_camera|Camera
+2112067032|        |preset_value_fmed_cam_off|Off
+2112067034|        |preset_Mods_friendly_meditation_fmed_camera|Camera presets
+2112067035|        |preset_value_fmed_notimescale|No acceleration
+2112067036|        |option_fmed_camDistance|Meditation camera distance
+2112067037|        |preset_value_fmed_fov_only|FOV only
+2112067038|        |option_fmed_camZOffset|Meditation camera Z offset
+2112067039|        |preset_value_fmed_sightseeing|Sightseeing
+2112067040|        |option_fmed_doNotDespawnCampfire|Do not remove spawned campfire
+2112067041|        |message_fmed_started_fastforward|Waiting is started
+2112067042|        |message_fmed_ended_fastforward|Waiting is stopped
+2112067043|        |panel_button_meditation_stop|Stop meditation
+2112067044|        |preset_value_fmed_prep_def|Preparations
+2112067045|        |option_fmed_beSilent|Turn off text messages

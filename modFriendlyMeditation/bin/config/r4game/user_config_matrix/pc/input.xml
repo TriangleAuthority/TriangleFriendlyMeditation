@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-16"?>
 <UserConfig>
+	<!-- modFriendlyMeditation begin -->
+	<Group id="Hidden" displayName="hidden">
+		<VisibleVars>
+			<Var builder="Input" id="MeditationStop" displayName="MeditationStop" displayType="INPUTPC" actions="MeditationStop" />
+		</VisibleVars>
+	</Group>
+	<!-- modFriendlyMeditation end -->
 	<Group builder="Input" id="PCInput" displayName="controls_pc" tags="keybinds">
 		<VisibleVars>
 			<!-- builder must be input; id and displayName are custom names (whatever you want), displayType must be INPUTPC -->
@@ -16,6 +23,12 @@
 			<Var builder="Input" id="Dismount"					displayName="dismount"							displayType="INPUTPC" actions="BoatDismount;HorseDismount"/>
 			-->		
 					
+			<!-- modFriendlyMeditation begin -->
+			<Var builder="Input" id="HoldToMeditate"			displayName="HoldToMeditate"					displayType="INPUTPC" actions="HoldToMeditate" />
+			<Var builder="Input" id="MeditationFastForward"		displayName="MeditationFastForward"				displayType="INPUTPC" actions="MeditationFastForward" tags="input_overlap2" />
+			<Var builder="Input" id="ToggleSpawnCampFire"		displayName="ToggleSpawnCampFire"				displayType="INPUTPC" actions="ToggleSpawnCampFire" />
+			<!-- modFriendlyMeditation end -->
+
 			<!-- [BASE_CharacterMovement] -->				
 			<Var builder="Input" id="MoveFwd"					displayName="move_forward"						displayType="INPUTPC" actions="MoveForward;MovementDoubleTapW;ChangeChoiceUp"/>
 			<Var builder="Input" id="MoveBck"					displayName="move_back"							displayType="INPUTPC" actions="MoveBackward;MovementDoubleTapS;ChangeChoiceDown;GI_Decelerate"/>

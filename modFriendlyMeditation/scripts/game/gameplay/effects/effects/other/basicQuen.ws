@@ -10,6 +10,18 @@ class W3Effect_BasicQuen extends CBaseGameplayEffect
 	default effectType = EET_BasicQuen;
 	default isPositive = true;
 	
+	//---=== modFriendlyMeditation ===---
+	event OnEffectRemoved()
+	{
+		if( quenEntity )
+		{
+			quenEntity.RemoveTimer('Expire');
+			quenEntity.AddTimer('Expire', 0.1, false, , , true, true);
+		}
+		super.OnEffectRemoved();
+	}
+	//---=== modFriendlyMeditation ===---
+
 	event OnEffectAddedPost()
 	{
 		super.OnEffectAddedPost();

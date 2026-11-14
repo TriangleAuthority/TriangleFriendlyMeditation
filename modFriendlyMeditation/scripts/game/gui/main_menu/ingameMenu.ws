@@ -2036,6 +2036,13 @@ class CR4IngameMenu extends CR4MenuBase
 		{
 			return 'input_overlap4';
 		}
+		//---=== modFriendlyMeditation ===---
+		else if (mInGameConfigWrapper.DoVarHasTag('PCInput', keybindName, 'input_overlap_fmed1')
+					|| keybindName == 'HoldToMeditate' || keybindName == 'PanelMeditation')
+		{
+			return 'input_overlap_fmed1';
+		}
+		//---=== modFriendlyMeditation ===---
 		else if (mInGameConfigWrapper.DoVarHasTag('PCInput', keybindName, 'input_overlap5'))
 		{
 			return 'input_overlap5';

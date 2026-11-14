@@ -163,6 +163,7 @@ state Sleep in W3WitcherBed
 		
 		
 		thePlayer.BlockAllActions( 'WitcherBed', true,,,,,false );
+		//BlockGameplayActions( true ); //modFriendlyMeditation
 		thePlayer.ActionMoveToNodeWithHeading( l_node, MT_Walk, 1.f, 0.4f );
 		
 		
@@ -181,6 +182,25 @@ state Sleep in W3WitcherBed
 		
 		thePlayer.PlayerStartAction( PEA_GoToSleep );
 	}
+	
+	//modFriendlyMeditation begin
+	/*function BlockGameplayActions( lock : bool )
+	{
+		var exceptions : array< EInputActionBlock >;
+		
+		exceptions.PushBack( EIAB_OpenMeditation );
+		exceptions.PushBack( EIAB_MeditationWaiting );
+	
+		if ( lock )
+		{
+			thePlayer.BlockAllActions( 'WitcherBed', true, exceptions );
+		}	
+		else
+		{
+			thePlayer.BlockAllActions( 'WitcherBed', false);
+		}
+	}*/
+	//modFriendlyMeditation end
 }
 
 state WakeUp in W3WitcherBed
