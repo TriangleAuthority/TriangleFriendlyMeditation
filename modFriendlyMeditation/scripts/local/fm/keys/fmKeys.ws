@@ -1,13 +1,56 @@
 // FM-KEYS: Friendly Meditation's hotkeys. Bindings: the player adds the input.settings lines by hand, as in legacy
 // (owner, 2026-11-14), and pastes the Key Bindings entries into the game's input.xml (release/*.part.txt): the
 // game reads Key Bindings only from input.xml's PCInput group; a second file's PCInput group is ignored.
-// Slice 0 ports one action, ToggleSpawnCampFire (legacy's End key): it flips "Spawn campfire" and says so.
+// Ported so far: ToggleSpawnCampFire (legacy's End key: flips "Spawn campfire" and says so) and HoldToMeditate
+// (legacy's hold-N, input.settings: IK_N=(Action=HoldToMeditate,State=Duration,IdleTime=0.4)).
 
 @wrapMethod(CPlayerInput)
 function Initialize(isFromLoad : bool, optional previousInput : CPlayerInput)
 {
 	wrappedMethod(isFromLoad, previousInput);
 	theInput.RegisterListener(this, 'OnToggleSpawnCampFire', 'ToggleSpawnCampFire');
+	theInput.RegisterListener(this, 'OnHoldToMeditate', 'HoldToMeditate');
+}
+
+// Set by the hotkey's press, cleared by the next press of 5.x's meditation key: the release of N after a hold
+// does not also open 5.x's meditation (legacy's inFriendlyMeditation).
+@addField(CPlayerInput)
+var fmInFriendlyMeditation : bool;
+
+// Legacy's OnHoldToMeditate: a press starts meditation, or ends it if Geralt meditates; the release ends it, unless
+// the hotkey is set to toggle or to "Hold to enter meditation mode".
+@addMethod(CPlayerInput)
+event OnHoldToMeditate(action : SInputAction)
+{
+	var witcher : W3PlayerWitcher;
+	var cfg : CModFMeditationConfig;
+	var asToggle : bool;
+
+	witcher = GetWitcherPlayer();
+	cfg = GetFMeditationConfig();
+	if(!witcher || !cfg)
+		return false;
+	asToggle = cfg.HotkeyAsToggle() || cfg.HotkeyManualFastforward();
+	if(IsPressed(action))
+	{
+		fmInFriendlyMeditation = true;
+		if(witcher.FMIsMeditating())
+			witcher.FMEndMeditation();
+		else
+			witcher.FMStartHotkeyMeditation();
+	}
+	if(IsReleased(action) && !asToggle)
+		witcher.FMEndMeditation();
+}
+
+@wrapMethod(CPlayerInput)
+function OnCommPanelMeditation(action : SInputAction)
+{
+	if(IsPressed(action))
+		fmInFriendlyMeditation = false;
+	if(fmInFriendlyMeditation && IsReleased(action))
+		return false;
+	return wrappedMethod(action);
 }
 
 @addMethod(CPlayerInput)
