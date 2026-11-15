@@ -2,7 +2,8 @@
 
 Things only the game, a probe or legacy can answer. Move answers into the doc they belong to and delete the entry.
 
-- **Real keys (slice 1):** does a real hold of N start FM's meditation and its release end it, with FM switching back from 5.x's `Meditation` input context ([deviation 3](deviations.md))?
+- **Real keys (slice 1):** does a real hold of N start FM's meditation and its release end it, with FM switching back from 5.x's `Meditation` input context ([deviation 3](deviations.md))? Needs a person at the keyboard: held keys sent with `SendInput` do not register on foot (2026-11-15: with the game in front, a held W did not move Geralt and a held N never fired `HoldToMeditate`, with or without auto-repeat; taps do register: End flipped the option). With N held 5 s, `IsActionPressed('PanelMeditation')` stayed false and the release opened 5.x's `CommonMenu`.
+- **5.x's N tap:** a real tap of N opened `CommonMenu` with Geralt still in state `Exploration` 2.5 s later (no sit-down seen). Is that the clock opened before sitting, or the panels' meditation tab? It matters for slice 5 (the clock) and for the hold (whether N's press is taken before the hold's 0.4 s).
 - **Bindings:** does a new context section (`[MEDITATION_CLOCK_CONTEXT]`, legacy's stop key) work from `input.settings`? Does a real press of End reach `OnToggleSpawnCampFire` (slice 0 tested the binding and the handler separately)?
 - **Camera:** when Geralt is in a state that defines `OnGameCameraPostTick`, does `CR4Player.OnGameCameraPostTick` run too?
 - **Behaviour graph on 5.x:** do `MeditateWithIgnite` (Igni lighting the fire), `HasCampfire` (putting it out) and `MeditateAbort` still play, and does `PlayerStartAction(PEA_Meditation)` without 5.x's `InitState` still sit Geralt down and fire `OnPlayerActionStartFinished`?
