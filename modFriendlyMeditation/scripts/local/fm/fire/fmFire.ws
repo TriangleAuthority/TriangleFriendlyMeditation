@@ -34,6 +34,12 @@ function PlayerStartAction(playerAction : EPlayerExplorationAction, optional ani
 		if(witcher.fmIgnite)
 			SetBehaviorVariable('MeditateWithIgnite', 1);
 	}
+	else if(playerAction == PEA_Meditation && witcher)
+	{
+		// the meditation action outside a meditation (a place of power's channeling): no campfire poses (FM-POP)
+		SetBehaviorVariable('MeditateWithIgnite', 0);
+		SetBehaviorVariable('HasCampfire', 0);
+	}
 	ret = wrappedMethod(playerAction, animName);
 	if(ret && playerAction == PEA_Meditation && witcher && witcher.FMIsMeditating() && witcher.fmIgnite)
 		AddTimer('FMSpawnCampFireTimer', 4.5, false);
