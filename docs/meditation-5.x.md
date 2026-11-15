@@ -72,6 +72,14 @@ How 5.x (build 1090142, `vanilla-5.x`) differs from 1.32 in everything Friendly 
 - **5.x turns the camera back behind Geralt while he stands up** (the state's leaving branch of `OnGameCameraPostTick`): 3° off after standing, with no code of FM's.
 - **Without the clock, 5.x's meditation camera keeps the clock's sideways offset** (`menuNotYetOpen` stays true until a menu opens); FM's `OpenUI` wrapper clears it in hotkey mode (by code).
 
+## What slice 4 showed
+
+**Verified** 2026-11-15 (beside Ghost Mode, by scripted calls; the animations not seen):
+
+- **5.x's behaviour graph still has legacy's campfire branches.** 5.x's `InitState` sets `MeditateWithIgnite` to 0 just before `PlayerStartAction(PEA_Meditation)`, and `StopMeditation` sets `HasCampfire` to 0 just before `PlayerStopAction(PEA_Meditation)`; both are script functions of `CR4Player`, so calling wrappers set FM's values after 5.x's. With `MeditateWithIgnite` = 1 the sit-down takes 6.6 s (to the anim event `OpenUI`) instead of 0.5 s.
+- **`campfire_01.w2ent` spawns and burns in 5.x** (`theGame.CreateEntity` with a tag list, `W3Campfire.ToggleFire`); legacy's placement (navmesh Z, then physics) puts it on the ground.
+- **`HasCampfire` stays set after the put-out** until something clears it; FM clears it once its fire is removed.
+
 ## Hotkeys on 5.x
 
 What the 5.x files show (**unverified** in game unless stated):
