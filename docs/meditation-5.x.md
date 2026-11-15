@@ -89,6 +89,13 @@ How 5.x (build 1090142, `vanilla-5.x`) differs from 1.32 in everything Friendly 
 - **Closing the clock after an hour was chosen does not stand Geralt up in 5.x** (the clock's `OnClosingMenu` leaves that to the wait loop when `m_had_meditation` is set); FM's wrapper of `CR4MeditationClockMenu.OnClosingMenu` does. `CR4CommonMenu.CloseMenu()` from a script closes it the same way.
 - **Calling the clock's `OnMeditate` from a script makes its Flash call `OnStopMeditate` at once,** with 5.x's own wait as well (aborted at 5:07 instead of 7:00): a test artifact, not a 5.x or FM behaviour. Tests swallow that one call.
 
+## What slice 6 showed
+
+**Verified** 2026-11-15 (beside Ghost Mode, by scripted calls):
+
+- **A calling wrapper of `CBaseGameplayEffect.OnEffectRemoved`** (declared there; `W3Effect_BasicQuen` inherits it) filtered on `(W3Effect_BasicQuen)this` can end the shield: `W3QuenEntity`'s `Expire` timer restarted at 0.1 s. A 30 s basic Quen ran out within 6 s of hold meditation, and `IsAnyQuenActive()` was false.
+- **Ghost Mode's regression passes with FM installed** in both skill trees.
+
 ## Hotkeys on 5.x
 
 What the 5.x files show (**unverified** in game unless stated):
