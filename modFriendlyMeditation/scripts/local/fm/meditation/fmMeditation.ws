@@ -238,6 +238,7 @@ function OnEnterState(prevStateName : name)
 {
 	if(prevStateName != 'MeditationWaiting')
 		theGame.CreateNoSaveLock("FriendlyMeditation", virtual_parent.fmNoSaveLock);
+	virtual_parent.FMReadCameraOptions();
 	return wrappedMethod(prevStateName);
 }
 
@@ -292,6 +293,8 @@ function OpenUI(fadeInTime : float)
 {
 	if(virtual_parent.fmHotkeyMode)
 	{
+		// no clock: 5.x's camera (when FM's is off) need not make room for it
+		menuNotYetOpen = false;
 		virtual_parent.FMSeated();
 		return;
 	}
