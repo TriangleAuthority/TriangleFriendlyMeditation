@@ -1,5 +1,6 @@
 // FM-KEYS: Friendly Meditation's hotkeys. Bindings: the player adds the input.settings lines by hand, as in legacy
-// (owner, 2026-11-14); the Key Bindings entries come from modFriendlyMeditation/menu/modFMeditationInput.xml.
+// (owner, 2026-11-14), and pastes the Key Bindings entries into the game's input.xml (release/*.part.txt): the
+// game reads Key Bindings only from input.xml's PCInput group; a second file's PCInput group is ignored.
 // Slice 0 ports one action, ToggleSpawnCampFire (legacy's End key): it flips "Spawn campfire" and says so.
 
 @wrapMethod(CPlayerInput)

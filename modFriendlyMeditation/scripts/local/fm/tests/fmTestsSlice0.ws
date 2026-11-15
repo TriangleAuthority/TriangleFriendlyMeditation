@@ -1,6 +1,7 @@
 // Slice 0 (test only): FM-MENU, the campfire hotkey, and the blob probes. Channel 'FMTest'.
 //   fmtest_menu()          the options menu's groups and every option's value or default
-//   fmtest_keys()          ToggleSpawnCampFire: its keys, its Key Bindings entry, a scripted press flips the option
+//   fmtest_keys()          ToggleSpawnCampFire: its keys (the input.settings line), its Key Bindings entry (the input.xml
+//                          lines pasted), a scripted press flips the option
 //   fmtest_state_a()       sits Geralt down (5.x's Meditate), then fmtest_state_b() a moment later:
 //   fmtest_state_b()       a field added to a state class, and a timer declared in the state started with AddTimer
 //   fmtest_state_c()       the timer's result, then stands Geralt up

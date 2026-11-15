@@ -24,13 +24,15 @@ Plain Python 3 (tested with 3.13), no extra packages. They are copies of Triangl
 
 ## Testing in game
 
-**The game is one install shared with TriangleGhostMode and TriangleGwentImprovements**, and its game tools (`game.py`, `game_lock.py`, rw3d_cli, `modAutomation`) are used from the TriangleGhostMode checkout, as its `w3-game-automation` skill describes. The procedure is TriangleGwentImprovements' ([its tools.md](https://github.com/TriangleAuthority/TriangleGwentImprovements/blob/master/docs/tools.md#testing-in-game)), **not yet run for this mod**:
+**The game is one install shared with TriangleGhostMode and TriangleGwentImprovements**, and its game tools (`game.py`, `game_lock.py`, rw3d_cli, `modAutomation`) are used from the TriangleGhostMode checkout, as its `w3-game-automation` skill describes. The procedure is TriangleGwentImprovements' ([its tools.md](https://github.com/TriangleAuthority/TriangleGwentImprovements/blob/master/docs/tools.md#testing-in-game)), **verified** for this mod (slice 0, 2026-11-15). The slot turns the owner's ReShade off for the turn and back on at the release:
 
 1. Commit, then build this mod (`python tools/build_mod.py --ref <branch> --out build/<slice>-<commit>`) and TriangleGhostMode's `master` there (`game.py` refuses to start without a `modGhostMode` installed in the same turn).
 2. In TriangleGhostMode: `python tools/game_lock.py request --who FM --why "..."` (the grant backs up the saves; also back them up with robocopy as its skill says).
 3. Install both with each repository's `build_mod.py --install-from ... --holder FM:<token>` (this mod with `--enable`).
 4. In TriangleGhostMode: `python tools/game.py run <save> --holder FM:<token>`, then `game.py exec "fmtest_ping()" --holder ...` and read the log, then `game.py quit`.
 5. **Put the owner's install back before releasing**: uninstall this mod (`build_mod.py --uninstall --holder FM:<token>`; check that its menu file is gone from `<game>/bin/config/r4game/user_config_matrix/pc/`), and put back the Ghost Mode and Gwent Improvements release builds if the run replaced them. Then `game_lock.py release --holder FM:<token>` there, and check that its saves line says clean.
+
+**Hotkeys on the test machine:** with the slot held and the game closed, add the `input.settings` lines to `Documents\The Witcher 3\input.settings` (the release restores that file). For Key Bindings, back up the game's `bin\config\r4game\user_config_matrix\pc\input.xml`, paste the lines from `release/input.xml.part.txt`, and put the backup back before releasing (the release does not restore it).
 
 **Mod settings live in `user.settings`** (the options menu writes them), which the owner's game shares: a test that changes this mod's options writes into the owner's settings file. Restore it, or set options in memory only (`CInGameConfigWrapper.SetVarValue` without saving), as GI-SKIP's test does.
 

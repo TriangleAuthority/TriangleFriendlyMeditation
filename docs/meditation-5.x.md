@@ -62,7 +62,12 @@ Options for the port:
 2. **Own XML file:** a `modFriendlyMeditationInput.xml` in `user_config_matrix\pc\` with a `builder="Input"` group. The game reads every XML there, and groups of one id can come from two files (5.x's `Hidden` group is in `hidden.xml`; legacy FM added a second `Hidden` group inside `input.xml`), so a second `PCInput` group may merge into Key Bindings. Untested. Bindings would still need the `input.settings` lines.
 3. **No new action (fallback):** detect a long press of vanilla's `PanelMeditation` (N) in a `@replaceMethod` of `OnCommPanelMeditation` (press time stored, a timer at 0.4 s starts FM meditation, a short release keeps 5.x's behaviour). Covers the main hotkey without any config edit; the fast-forward and campfire keys would need another vanilla action or menu options instead. Untested.
 
-Slice 0 should settle which works: one action (`ToggleSpawnCampFire` on End) through option 2, then option 1. Manual setup by the player is accepted (owner, 2026-11-14, as in legacy), so option 1's manual steps are acceptable; option 2 is still preferred if it works, because it leaves the game's own `input.xml` alone.
+**Slice 0 results** (**verified** 2026-11-15, `ToggleSpawnCampFire` on End, by scripted calls):
+
+- **An `input.settings` line alone binds an action:** `IK_End=(Action=ToggleSpawnCampFire)` under `[Exploration]` makes `theInput.GetPCKeysForAction` return `IK_End`, with no `input.xml` entry. 5.x keeps lines it does not know when it rewrites the file on exit (the line stayed in its section).
+- **Option 2 does not work:** a second `PCInput` group in an own XML file is ignored (the group keeps vanilla's 56 entries), and the Key Bindings screen reads only `PCInput` (`CR4IngameMenu.GetKeybindGroupTag` names it).
+- **Option 1 works:** the legacy `Var` line pasted into the `PCInput` group of the game's `input.xml` puts the action in Key Bindings (57 entries); its display name `ToggleSpawnCampFire` is translated by FM's string of that key. The port ships option 1 as instructions (`release/input.xml.part.txt`), as legacy did. Manual setup is accepted (owner, 2026-11-14).
+- **Scripts register a new action like a vanilla one:** a calling wrapper of `CPlayerInput.Initialize` adds `RegisterListener(this, 'OnToggleSpawnCampFire', 'ToggleSpawnCampFire')`, and an `@addMethod` event handles it.
 
 ## What is hard
 

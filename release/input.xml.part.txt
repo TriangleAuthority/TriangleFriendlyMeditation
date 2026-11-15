@@ -1,0 +1,18 @@
+Friendly Meditation's Key Bindings entries (legacy 2.3's, for 5.x).
+
+The game shows only the actions listed in its own input.xml, in the "PCInput" group: a second file cannot add
+to it. To see and change Friendly Meditation's keys in Options > Key Bindings, open
+<game>\bin\config\r4game\user_config_matrix\pc\input.xml in a text editor, find the line
+
+	<Group builder="Input" id="PCInput" displayName="controls_pc" tags="keybinds">
+
+and paste these lines right after the <VisibleVars> line under it:
+
+			<!-- modFriendlyMeditation begin -->
+			<Var builder="Input" id="HoldToMeditate"			displayName="HoldToMeditate"					displayType="INPUTPC" actions="HoldToMeditate" />
+			<Var builder="Input" id="MeditationFastForward"		displayName="MeditationFastForward"				displayType="INPUTPC" actions="MeditationFastForward" tags="input_overlap2" />
+			<Var builder="Input" id="ToggleSpawnCampFire"		displayName="ToggleSpawnCampFire"				displayType="INPUTPC" actions="ToggleSpawnCampFire" />
+			<!-- modFriendlyMeditation end -->
+
+The keys work without this step (input.settings.part.txt); it only adds them to the Key Bindings menu.
+A game update may replace input.xml: paste the lines again afterwards.
