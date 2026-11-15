@@ -40,7 +40,8 @@ exec function fmtest_s2_press()
 	var w : W3PlayerWitcher;
 
 	w = GetWitcherPlayer();
-	w.fmTestBaseHPM = theGame.GetHoursPerMinute();
+	if(!w.FMIsMeditating())
+		w.fmTestBaseHPM = theGame.GetHoursPerMinute();
 	thePlayer.GetInputHandler().OnHoldToMeditate(FMTestHoldAction(true));
 	FMTestLogState("pressed");
 }

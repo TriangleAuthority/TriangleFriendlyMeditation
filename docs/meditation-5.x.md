@@ -56,6 +56,14 @@ How 5.x (build 1090142, `vanilla-5.x`) differs from 1.32 in everything Friendly 
 - **Legacy's effect formula gives effects exactly the game time that passed:** `PerformUpdate(ConvertGameSecondsToRealTimeSeconds(gameSecs) * hpm / storedHpm)` summed to game seconds / 15 (33,500 game s → 2,233 s of effects). The engine's own per-frame update comes on top (real time, small).
 - **Stops:** `MeditationForceAbort` (what a hit and the start of combat call) and a real fight both reach the state's `StopRequested`; Geralt stands up through 5.x's `StopMeditation`.
 
+## What slice 2 showed
+
+**Verified** 2026-11-15 (beside Ghost Mode, by scripted calls):
+
+- **`theGame.SetTimeScale(240, 'FriendlyMeditation', 100)` works in 5.x** with hours per minute back at 0.25 (legacy's "Speed up animations"); `RemoveTimeScale('FriendlyMeditation')` puts it back to 1.
+- **5.x's `Meditation` tick stands Geralt up on Jump** (`IsJumpPressed` reads the `Jump` action, which action blocks do not stop) as well as on the stick. Space is FM's fast-forward key, so FM's `StopRequested` wrapper ignores a request from inside the tick while the stick is at rest (a flag set around `wrappedMethod` in the tick wrapper).
+- **`SingletonItemsRefillAmmo` from FM's update** goes through Ghost Mode's version (it uses up an alcohol).
+
 ## Hotkeys on 5.x
 
 What the 5.x files show (**unverified** in game unless stated):
