@@ -157,7 +157,10 @@ exec function fmtest_hold_after()
 // Stops: fmtest_stop_a() presses the hotkey; once seated, stop it some way, then fmtest_stop_b().
 exec function fmtest_stop_a()
 {
-	GetWitcherPlayer().fmTestBaseHPM = theGame.GetHoursPerMinute();
+	var w : W3PlayerWitcher;
+
+	w = GetWitcherPlayer();
+	w.fmTestBaseHPM = theGame.GetHoursPerMinute();
 	thePlayer.GetInputHandler().OnHoldToMeditate(FMTestHoldAction(true));
 	FMTestLogState("pressed");
 }
