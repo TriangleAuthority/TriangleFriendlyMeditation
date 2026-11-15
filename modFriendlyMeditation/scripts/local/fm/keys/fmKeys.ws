@@ -1,8 +1,9 @@
 // FM-KEYS: Friendly Meditation's hotkeys. Bindings: the player adds the input.settings lines by hand, as in legacy
 // (owner, 2026-11-14), and pastes the Key Bindings entries into the game's input.xml (release/*.part.txt): the
 // game reads Key Bindings only from input.xml's PCInput group; a second file's PCInput group is ignored.
-// Ported so far: ToggleSpawnCampFire (legacy's End key: flips "Spawn campfire" and says so) and HoldToMeditate
-// (legacy's hold-N, input.settings: IK_N=(Action=HoldToMeditate,State=Duration,IdleTime=0.4)).
+// Ported so far: ToggleSpawnCampFire (legacy's End key: flips "Spawn campfire" and says so), HoldToMeditate
+// (legacy's hold-N, input.settings: IK_N=(Action=HoldToMeditate,State=Duration,IdleTime=0.4)) in its three modes,
+// and MeditationFastForward (Space). MeditationStop (the clock's stop key) comes with the clock (slice 5).
 
 @wrapMethod(CPlayerInput)
 function Initialize(isFromLoad : bool, optional previousInput : CPlayerInput)
@@ -10,6 +11,22 @@ function Initialize(isFromLoad : bool, optional previousInput : CPlayerInput)
 	wrappedMethod(isFromLoad, previousInput);
 	theInput.RegisterListener(this, 'OnToggleSpawnCampFire', 'ToggleSpawnCampFire');
 	theInput.RegisterListener(this, 'OnHoldToMeditate', 'HoldToMeditate');
+	theInput.RegisterListener(this, 'OnMeditationFastForward', 'MeditationFastForward');
+}
+
+// Legacy's fast-forward key (Space): while seated, press starts the fast-forward, release or a second press ends it.
+@addMethod(CPlayerInput)
+event OnMeditationFastForward(action : SInputAction)
+{
+	var witcher : W3PlayerWitcher;
+
+	witcher = GetWitcherPlayer();
+	if(thePlayer.IsCiri() || !witcher || !witcher.FMIsMeditating())
+		return false;
+	if(IsPressed(action))
+		witcher.FMFastForwardKey(true);
+	else if(IsReleased(action))
+		witcher.FMFastForwardKey(false);
 }
 
 // Set by the hotkey's press, cleared by the next press of 5.x's meditation key: the release of N after a hold

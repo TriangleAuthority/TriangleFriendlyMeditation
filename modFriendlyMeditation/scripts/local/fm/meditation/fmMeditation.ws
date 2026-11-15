@@ -9,6 +9,9 @@
 //   clock), which ends the fast-forward at once; Geralt then stands up through 5.x's code. No healing at the end
 //   (legacy never called MeditationRestoring).
 // - No saving while meditating (legacy's no-save lock).
+// - Slice 2: alchemy refill after one game hour of fast-forward, the time-scale option ("Speed up animations"),
+//   the "Waiting is started/stopped" notifications, the fast-forward key (MeditationFastForward) for the manual
+//   hotkey mode.
 
 @addField(W3PlayerWitcher)
 var fmHotkeyMode : bool;	// this meditation was started by FM's hotkey (no clock)
@@ -46,6 +49,24 @@ var fmFullHealth : bool;
 // Game seconds of fast-forward so far and effect seconds applied (for the tests).
 @addField(W3PlayerWitcher)
 var fmEffectSecsApplied : float;
+
+@addField(W3PlayerWitcher)
+var fmSeated : bool;	// seated in hotkey mode (the fast-forward key works from here on)
+
+@addField(W3PlayerWitcher)
+var fmRefilled : bool;	// this fast-forward session refilled alchemy already
+
+@addField(W3PlayerWitcher)
+var fmTimescale : bool;	// the time-scale option took over from the hours-per-minute ramp
+
+@addField(W3PlayerWitcher)
+var fmInMeditationTick : bool;	// inside 5.x's meditation tick (to tell its jump stop apart)
+
+// Legacy's fmedRefillIntervalSeconds: one game hour of fast-forward refills alchemy, once per session.
+function FMRefillIntervalSecs() : float
+{
+	return 3600.0;
+}
 
 @addMethod(W3PlayerWitcher)
 function FMIsMeditating() : bool
@@ -93,6 +114,7 @@ function FMEndMeditation()
 @addMethod(W3PlayerWitcher)
 function FMSeated()
 {
+	fmSeated = true;
 	if(!fmConfig.HotkeyManualFastforward())
 		FMStartFastForward();
 }
@@ -100,9 +122,11 @@ function FMSeated()
 @addMethod(W3PlayerWitcher)
 function FMStartFastForward()
 {
-	if(fmFastForward || !FMIsMeditating())
+	if(fmFastForward || !FMIsMeditating() || !fmSeated)
 		return;
 	fmFastForward = true;
+	fmRefilled = false;
+	fmTimescale = false;
 	fmMaxHPM = fmConfig.MaxHPM();
 	fmHPMPerSecond = fmConfig.HPMPerSecond();
 	fmStoredHPM = theGame.GetHoursPerMinute();
@@ -116,6 +140,8 @@ function FMStartFastForward()
 	FactsSet('MeditationWaitStartDay', GameTimeDays(fmStoredGameTime));
 	FactsSet('MeditationWaitStartHour', GameTimeHours(fmStoredGameTime));
 	FactsSet('MeditationStarted', 1);
+	if(!fmConfig.BeSilent())
+		theGame.GetGuiManager().ShowNotification(GetLocStringByKeyExt("message_fmed_started_fastforward"), , true);
 }
 
 @addMethod(W3PlayerWitcher)
@@ -126,7 +152,37 @@ function FMEndFastForward()
 	fmFastForward = false;
 	theGame.GetFastForwardSystem().AllowFastForwardSelfCompletion();
 	theGame.SetHoursPerMinute(fmStoredHPM);
+	if(fmTimescale)
+	{
+		theGame.RemoveTimeScale('FriendlyMeditation');
+		fmTimescale = false;
+	}
 	FactsSet('MeditationStarted', 0);
+	if(!fmConfig.BeSilent())
+		theGame.GetGuiManager().ShowNotification(GetLocStringByKeyExt("message_fmed_ended_fastforward"), , true);
+}
+
+// The fast-forward key (legacy's OnMeditationFastForward): a press while seated starts the fast-forward, a press
+// or the release while fast-forwarding ends it, so in effect "hold to advance time".
+@addMethod(W3PlayerWitcher)
+function FMFastForwardKey(pressed : bool)
+{
+	if(fmFastForward)
+		FMEndFastForward();
+	else if(pressed)
+		FMStartFastForward();
+}
+
+// Legacy's MeditationRefill: alchemy refilled once a session has run a game hour (through Ghost Mode's and
+// Preparations' versions of SingletonItemsRefillAmmo when installed).
+@addMethod(W3PlayerWitcher)
+function FMCheckRefill()
+{
+	if(!fmRefilled && GameTimeToSeconds(theGame.GetGameTime()) - GameTimeToSeconds(fmStoredGameTime) >= FMRefillIntervalSecs())
+	{
+		inv.SingletonItemsRefillAmmo();
+		fmRefilled = true;
+	}
 }
 
 // Legacy's MeditationUpdate, once per player tick while fast-forwarding.
@@ -138,11 +194,15 @@ function FMMeditationUpdate()
 	if(GetDayPart(theGame.GetGameTime()) != GetDayPart(fmUpdatedGameTime))
 		theGame.VibrateControllerVeryLight();
 
-	// the effects get the game time that passed since the last update, in accelerated time (legacy's formula)
-	gameTimeSecs = GameTimeToSeconds(theGame.GetGameTime() - fmUpdatedGameTime);
-	realTimeSecs = ConvertGameSecondsToRealTimeSeconds(gameTimeSecs);
-	effectManager.PerformUpdate(realTimeSecs * fmHPM / fmStoredHPM);
-	fmEffectSecsApplied += realTimeSecs * fmHPM / fmStoredHPM;
+	// the effects get the game time that passed since the last update, in accelerated time (legacy's formula);
+	// under the time scale the engine's own tick runs them faster instead
+	if(!fmTimescale)
+	{
+		gameTimeSecs = GameTimeToSeconds(theGame.GetGameTime() - fmUpdatedGameTime);
+		realTimeSecs = ConvertGameSecondsToRealTimeSeconds(gameTimeSecs);
+		effectManager.PerformUpdate(realTimeSecs * fmHPM / fmStoredHPM);
+		fmEffectSecsApplied += realTimeSecs * fmHPM / fmStoredHPM;
+	}
 
 	if(!fmFullHealth && GetStat(BCS_Vitality) >= GetStatMax(BCS_Vitality))
 	{
@@ -150,10 +210,23 @@ function FMMeditationUpdate()
 		fmFullHealth = true;
 	}
 
-	if(fmHPM < fmMaxHPM)
+	FMCheckRefill();
+
+	if(!fmTimescale)
 	{
-		fmHPM = MinF(fmMaxHPM, fmStoredHPM + (theGame.GetEngineTimeAsSeconds() - fmFastForwardStartSecs) * fmHPMPerSecond);
-		theGame.SetHoursPerMinute(fmHPM);
+		if(fmHPM < fmMaxHPM)
+		{
+			fmHPM = MinF(fmMaxHPM, fmStoredHPM + (theGame.GetEngineTimeAsSeconds() - fmFastForwardStartSecs) * fmHPMPerSecond);
+			theGame.SetHoursPerMinute(fmHPM);
+		}
+		else if(fmConfig.UseTimescale())
+		{
+			// legacy's "Speed up animations": at the top speed, the whole game runs faster instead
+			fmTimescale = true;
+			theGame.GetFastForwardSystem().AllowFastForwardSelfCompletion();
+			theGame.SetHoursPerMinute(fmStoredHPM);
+			theGame.SetTimeScale(fmHPM / fmStoredHPM, 'FriendlyMeditation', 100);
+		}
 	}
 	fmUpdatedGameTime = theGame.GetGameTime();
 }
@@ -176,6 +249,7 @@ function OnLeaveState(nextStateName : name)
 	{
 		theGame.ReleaseNoSaveLock(virtual_parent.fmNoSaveLock);
 		virtual_parent.fmHotkeyMode = false;
+		virtual_parent.fmSeated = false;
 	}
 	return wrappedMethod(nextStateName);
 }
@@ -185,7 +259,9 @@ function OnPlayerTickTimer(deltaTime : float)
 {
 	var ret : bool;
 
+	virtual_parent.fmInMeditationTick = true;
 	ret = wrappedMethod(deltaTime);
+	virtual_parent.fmInMeditationTick = false;
 	// 5.x switches to an input context of its own while Geralt sits without a menu; in hotkey mode FM's keys must
 	// keep working, so it goes back to the previous context (5.x then has nothing to restore when he stands up)
 	if(virtual_parent.fmHotkeyMode && changedContext && theInput.GetContext() == 'Meditation')
@@ -201,6 +277,10 @@ function OnPlayerTickTimer(deltaTime : float)
 @wrapMethod(W3PlayerWitcherStateMeditation)
 function StopRequested(optional closeUI : bool)
 {
+	// 5.x's tick stands Geralt up on the stick or on Jump; Jump is Space, legacy's fast-forward key, and legacy
+	// blocked jumping while meditating: in hotkey mode only the stick stops it from the tick
+	if(virtual_parent.fmInMeditationTick && virtual_parent.fmHotkeyMode && virtual_parent.bLAxisReleased)
+		return;
 	virtual_parent.FMEndFastForward();
 	wrappedMethod(closeUI);
 }
