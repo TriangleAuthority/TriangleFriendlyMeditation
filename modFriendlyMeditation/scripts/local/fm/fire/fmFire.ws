@@ -89,4 +89,6 @@ timer function FMDeSpawnCampFireTimer(dt : float, id : int)
 		fmSpawnedCampFire.Destroy();
 	}
 	fmSpawnedCampFire = NULL;
+	// the put-out is played: clear it, so 5.x's own sit-down (the clock) does not see it
+	SetBehaviorVariable('HasCampfire', 0);
 }
