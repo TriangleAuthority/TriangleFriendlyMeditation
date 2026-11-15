@@ -64,6 +64,14 @@ How 5.x (build 1090142, `vanilla-5.x`) differs from 1.32 in everything Friendly 
 - **5.x's `Meditation` tick stands Geralt up on Jump** (`IsJumpPressed` reads the `Jump` action, which action blocks do not stop) as well as on the stick. Space is FM's fast-forward key, so FM's `StopRequested` wrapper ignores a request from inside the tick while the stick is at rest (a flag set around `wrappedMethod` in the tick wrapper).
 - **`SingletonItemsRefillAmmo` from FM's update** goes through Ghost Mode's version (it uses up an alcohol).
 
+## What slice 3 showed
+
+**Verified** 2026-11-15 (beside Ghost Mode, by scripted calls; headings and field of view read, the views not seen):
+
+- **A calling wrapper of `W3PlayerWitcherStateMeditation.OnGameCameraTick` that returns before `wrappedMethod` replaces 5.x's meditation camera;** `OnGameCameraPostTick` of the same state can damp `theGame.GetGameCamera().fov`. The exploration camera sets the field of view and the pivot's `offsetZ` back by itself afterwards (67 at the test save).
+- **5.x turns the camera back behind Geralt while he stands up** (the state's leaving branch of `OnGameCameraPostTick`): 3° off after standing, with no code of FM's.
+- **Without the clock, 5.x's meditation camera keeps the clock's sideways offset** (`menuNotYetOpen` stays true until a menu opens); FM's `OpenUI` wrapper clears it in hotkey mode (by code).
+
 ## Hotkeys on 5.x
 
 What the 5.x files show (**unverified** in game unless stated):
