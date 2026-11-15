@@ -2,7 +2,7 @@
 
 ## Where the port stands
 
-**2026-11-15: slice 0 done.** FM-MENU and one hotkey work in game beside Ghost Mode (**verified** 2026-11-15, by scripted calls): the options menu (two groups, 14 options, 4 presets each, legacy's strings) with defaults in script ([deviation 1](deviations.md)); `ToggleSpawnCampFire` on End through an `input.settings` line flips "Spawn campfire"; Key Bindings lists it once the legacy lines are pasted into the game's `input.xml` (an own XML file cannot add to Key Bindings, [Hotkeys on 5.x](meditation-5.x.md#hotkeys-on-5x)). The blob probes are answered: a field and a timer added to a state class work; two blobs declaring the same field stop the game's script loading at start. Not yet done: a real key press (End) and a look at the Key Bindings screen. Next: slice 1.
+**2026-11-15: slice 1 built and verified by script.** Holding the meditation hotkey sits Geralt down through 5.x's `Meditate()` without the clock, the fast-forward ramps to "Max time acceleration" (0.25 → 60 game hours per real minute in about 6 s) inside 5.x's `Meditation` state, effects run in accelerated time, and releasing the hotkey, a hit's force-abort, or combat (a wolf spawned nearby) stands Geralt up with the normal time speed back (**verified** 2026-11-15 beside Ghost Mode, the hotkey's events called by script). Not yet checked: a real hold of N (needs the owner's OK to use the keyboard), the stop on a blocking scene (by code only), the no-save lock (the test save is save-locked by the automation already). Slice 0 (2026-11-15): FM-MENU with defaults in script ([deviation 1](deviations.md)), `ToggleSpawnCampFire` on End, Key Bindings through the legacy `input.xml` paste ([Hotkeys on 5.x](meditation-5.x.md#hotkeys-on-5x)); two blobs must never declare the same name. Next: the real key press, then slice 2.
 
 ## Approach
 
@@ -38,7 +38,7 @@ As in TriangleGhostMode and TriangleGwentImprovements: reproduce the legacy mod'
 ## Slices
 
 0. **Tooling and probes** (done 2026-11-15): the tools from TriangleGwentImprovements (done 2026-11-13) (`paths.MOD = modFriendlyMeditation`), compile check, install on the shared slot with Ghost Mode installed (as Gwent's [tools.md](https://github.com/TriangleAuthority/TriangleGwentImprovements/blob/master/docs/tools.md#testing-in-game) does). Show FM-MENU in game (`autoconfig("modFriendlyMeditation")`), and **one hotkey**: `ToggleSpawnCampFire` on End through an own input XML, then the legacy `input.xml` edit, each with the `input.settings` line; read the result in Key Bindings and by the option flipping. Answer the blob probes in [Open questions](open-questions.md) (state `@addField`, duplicate `@addMethod` across two blobs).
-1. **FM-RT core with FM-KEYS:** the hold hotkey starts and ends sitting and fast-forward; HPM ramp; `PerformUpdate`; ends on hit, scene, combat; no save while meditating. Test by script (scripted input actions, as TGM's input simulation) and one real key press with the owner's OK.
+1. **FM-RT core with FM-KEYS** (built 2026-11-15; the real key press is open): the hold hotkey starts and ends sitting and fast-forward; HPM ramp; `PerformUpdate`; ends on hit, scene, combat; no save while meditating. Test by script (scripted input actions, as TGM's input simulation) and one real key press with the owner's OK.
 2. **FM-RT rest:** refill after a game hour, time-scale option, notifications, manual and toggle modes, `MeditationFastForward`.
 3. **FM-CAM.**
 4. **FM-FIRE** (spawn, Igni pose, removal, toggle key).

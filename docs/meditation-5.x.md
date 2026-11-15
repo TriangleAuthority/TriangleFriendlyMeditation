@@ -46,6 +46,16 @@ How 5.x (build 1090142, `vanilla-5.x`) differs from 1.32 in everything Friendly 
 - `ConvertGameSecondsToRealTimeSeconds` divides by the **current** hours per minute (`engine/gameTime.ws`), so FM's step is the real time elapsed × the acceleration, i.e. the normal-speed time that passed. The engine's normal effect tick runs in addition (a small over-count, about 1/acceleration).
 - `SimulateBuffTimePassing` in `W3PlayerWitcher` (5.x) calls `FinishQuen(true)`; FM's path never calls it, which may be why FM added `W3Effect_BasicQuen.OnEffectRemoved`.
 
+## What slice 1 showed
+
+**Verified** 2026-11-15 (beside Ghost Mode, by scripted calls):
+
+- **Sitting down without the clock:** in 5.x's `Meditation` state, `OpenUI` is called once Geralt is seated (from the anim event `OpenUI`, about 2 s after `Meditate()`) and again when `Meditate()` runs while he sits; skipping it in a wrapper leaves him seated with no menu (`PEA_Meditation`).
+- **5.x's sit-down switches the input context to `Meditation`**, a context no input file defines. A wrapper of the state's `OnPlayerTickTimer` can switch back (`theInput.RestoreContext('Meditation', false)`) and clear the state's private `changedContext` (a wrapper sees the state's private variables), so 5.x restores nothing when he stands up.
+- **The fast-forward:** `theGame.SetHoursPerMinute` with `GetFastForwardSystem().BeginFastForward()` works from the player tick while the state idles; normal speed is 0.25 hours per minute.
+- **Legacy's effect formula gives effects exactly the game time that passed:** `PerformUpdate(ConvertGameSecondsToRealTimeSeconds(gameSecs) * hpm / storedHpm)` summed to game seconds / 15 (33,500 game s → 2,233 s of effects). The engine's own per-frame update comes on top (real time, small).
+- **Stops:** `MeditationForceAbort` (what a hit and the start of combat call) and a real fight both reach the state's `StopRequested`; Geralt stands up through 5.x's `StopMeditation`.
+
 ## Hotkeys on 5.x
 
 What the 5.x files show (**unverified** in game unless stated):
