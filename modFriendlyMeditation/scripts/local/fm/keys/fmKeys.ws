@@ -28,6 +28,7 @@ event OnHoldToMeditate(action : SInputAction)
 
 	witcher = GetWitcherPlayer();
 	cfg = GetFMeditationConfig();
+	LogChannel('FMInput', "OnHoldToMeditate value " + action.value + ", last " + action.lastFrameValue);
 	if(!witcher || !cfg)
 		return false;
 	asToggle = cfg.HotkeyAsToggle() || cfg.HotkeyManualFastforward();

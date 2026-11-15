@@ -181,3 +181,11 @@ exec function fmtest_stop_b()
 	FMTestResult("fmtest_stop_b", FMTestCheck(!w.FMIsMeditating() && !w.fmFastForward && AbsF(theGame.GetHoursPerMinute() - w.fmTestBaseHPM) < 0.001 && !theGame.AreSavesLocked(),
 		"meditation ended, time speed and saving restored"));
 }
+
+// The input state of the meditation key's actions (while a real key is held).
+exec function fmtest_input()
+{
+	LogChannel('FMTest', "info HoldToMeditate pressed " + theInput.IsActionPressed('HoldToMeditate') + ", value " + theInput.GetActionValue('HoldToMeditate')
+		+ ", last activation " + theInput.GetLastActivationTime('HoldToMeditate') + "; PanelMeditation pressed " + theInput.IsActionPressed('PanelMeditation')
+		+ ", value " + theInput.GetActionValue('PanelMeditation') + "; context " + theInput.GetContext());
+}
