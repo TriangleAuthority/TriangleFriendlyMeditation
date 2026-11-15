@@ -73,7 +73,7 @@ exec function fmtest_s4_gone(expectGone : bool)
 	var bad : int;
 
 	w = GetWitcherPlayer();
-	LogChannel('FMTest', "info after standing: campfire " + (w.fmSpawnedCampFire != NULL) + ", by tag " + (theGame.GetEntityByTag('fmed_campfire') != NULL)
+	LogChannel('FMTest', "info after standing: campfire " + (bool)w.fmSpawnedCampFire + ", by tag " + (bool)theGame.GetEntityByTag('fmed_campfire')
 		+ ", HasCampfire " + w.GetBehaviorVariable('HasCampfire') + ", state " + w.GetCurrentStateName());
 	bad += FMTestCheck(!w.FMIsMeditating(), "standing");
 	if(expectGone)
