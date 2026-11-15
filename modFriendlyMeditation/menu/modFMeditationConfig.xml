@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<UserConfig>
+<!-- Friendly Meditation options (legacy 2.3's groups, ids and presets). Defaults for options never set: scripts/local/fm/config/fmConfig.ws -->
+   
+    <Group id="modFriendlyMeditation" displayName="Mods.friendly_meditation.fmed_meditation">
+		<PresetsArray>
+			<Preset id="0" displayName="fmed_defaults">
+				<Entry varId="fmedMaxHoursPerMinute" value="60.0"/>
+				<Entry varId="fmedHoursPerMinutePerSecond" value="10.0"/>
+				<Entry varId="fmedUseTimescale" value="false"/>
+				<Entry varId="fmedSpawnCampfire" value="false"/>
+				<Entry varId="fmedDoNotDespawnCampfire" value="false"/>
+				<Entry varId="fmedHotkeyBehavior" value="0"/>
+				<Entry varId="fmedBeSilent" value="0"/>
+			</Preset>
+			<Preset id="1" displayName="fmed_timescale">
+				<Entry varId="fmedMaxHoursPerMinute" value="60.0"/>
+				<Entry varId="fmedHoursPerMinutePerSecond" value="20.0"/>
+				<Entry varId="fmedUseTimescale" value="true"/>
+			</Preset>
+			<Preset id="2" displayName="fmed_notimescale">
+				<Entry varId="fmedMaxHoursPerMinute" value="60.0"/>
+				<Entry varId="fmedHoursPerMinutePerSecond" value="10.0"/>
+				<Entry varId="fmedUseTimescale" value="false"/>
+			</Preset>
+			<Preset id="3" displayName="fmed_prep_def">
+				<Entry varId="fmedMaxHoursPerMinute" value="60.0"/>
+				<Entry varId="fmedHoursPerMinutePerSecond" value="10.0"/>
+				<Entry varId="fmedUseTimescale" value="false"/>
+				<Entry varId="fmedSpawnCampfire" value="true"/>
+				<Entry varId="fmedDoNotDespawnCampfire" value="false"/>
+				<Entry varId="fmedHotkeyBehavior" value="2"/>
+				<Entry varId="fmedBeSilent" value="0"/>
+			</Preset>
+		</PresetsArray>
+        <VisibleVars>
+			<Var id="fmedMaxHoursPerMinute" displayName="fmed_maxHoursPerMinute" displayType="SLIDER;0;300;300" tags=""/>
+			<Var id="fmedHoursPerMinutePerSecond" displayName="fmed_hoursPerMinutePerSecond" displayType="SLIDER;0;50;50" tags=""/>
+			<Var id="fmedUseTimescale" displayName="fmed_useTimescale" displayType="TOGGLE"/>
+			<Var id="fmedSpawnCampfire" displayName="fmed_spawnCampfire" displayType="TOGGLE"/>
+			<Var id="fmedDoNotDespawnCampfire" displayName="fmed_doNotDespawnCampfire" displayType="TOGGLE"/>
+            <Var id="Virtual_fmedHotkeyBehavior" displayName="fmed_hotkeyBehavior" displayType="OPTIONS" >
+				<OptionsArray>
+					<Option id="0" displayName="fmed_hotkeyBehavior_hold">
+						<Entry varId="fmedHotkeyBehavior" value="0"/>
+					</Option>
+					<Option id="1" displayName="fmed_hotkeyBehavior_toggle">
+						<Entry varId="fmedHotkeyBehavior" value="1"/>
+					</Option>
+					<Option id="2" displayName="fmed_hotkeyBehavior_wait">
+						<Entry varId="fmedHotkeyBehavior" value="2"/>
+					</Option>
+				</OptionsArray>
+			</Var>
+			<Var id="fmedBeSilent" displayName="fmed_beSilent" displayType="TOGGLE"/>
+        </VisibleVars>
+    </Group>
+    <Group id="modFriendlyMeditationCamera" displayName="Mods.friendly_meditation.fmed_camera">
+		<PresetsArray>
+			<Preset id="0" displayName="fmed_defaults">
+				<Entry varId="fmedUseMeditationCam" value="true"/>
+				<Entry varId="fmedCamFacePlayer" value="true"/>
+				<Entry varId="fmedCamFOV" value="40.0"/>
+				<Entry varId="fmedCamDistance" value="3.8"/>
+				<Entry varId="fmedCamPitch" value="-15.0"/>
+				<Entry varId="fmedCamXOffset" value="0.5"/>
+				<Entry varId="fmedCamZOffset" value="0.5"/>
+			</Preset>
+			<Preset id="1" displayName="fmed_sightseeing">
+				<Entry varId="fmedUseMeditationCam" value="true"/>
+				<Entry varId="fmedCamFacePlayer" value="false"/>
+				<Entry varId="fmedCamFOV" value="50.0"/>
+				<Entry varId="fmedCamDistance" value="2.0"/>
+				<Entry varId="fmedCamPitch" value="0.0"/>
+				<Entry varId="fmedCamXOffset" value="1.0"/>
+				<Entry varId="fmedCamZOffset" value="1.0"/>
+			</Preset>
+			<Preset id="2" displayName="fmed_fov_only">
+				<Entry varId="fmedUseMeditationCam" value="true"/>
+				<Entry varId="fmedCamFacePlayer" value="false"/>
+				<Entry varId="fmedCamFOV" value="80.0"/>
+				<Entry varId="fmedCamDistance" value="0.0"/>
+				<Entry varId="fmedCamPitch" value="0.0"/>
+				<Entry varId="fmedCamXOffset" value="0.0"/>
+				<Entry varId="fmedCamZOffset" value="0.5"/>
+			</Preset>
+			<Preset id="3" displayName="fmed_cam_off">
+				<Entry varId="fmedUseMeditationCam" value="false"/>
+			</Preset>
+		</PresetsArray>
+        <VisibleVars>
+			<Var id="fmedUseMeditationCam" displayName="fmed_useMeditationCam" displayType="TOGGLE"/>
+			<Var id="fmedCamFacePlayer" displayName="fmed_camFacePlayer" displayType="TOGGLE"/>
+			<Var id="fmedCamFOV" displayName="fmed_camFOV" displayType="SLIDER;30;90;60" tags=""/>
+			<Var id="fmedCamDistance" displayName="fmed_camDistance" displayType="SLIDER;0;20;200" tags=""/>
+			<Var id="fmedCamPitch" displayName="fmed_camPitch" displayType="SLIDER;-90;90;180" tags=""/>
+			<Var id="fmedCamXOffset" displayName="fmed_camXOffset" displayType="SLIDER;-2;2;400" tags=""/>
+			<Var id="fmedCamZOffset" displayName="fmed_camZOffset" displayType="SLIDER;-2;2;400" tags=""/>
+        </VisibleVars>
+    </Group>
+	
+</UserConfig>

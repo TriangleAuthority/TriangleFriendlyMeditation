@@ -1,0 +1,44 @@
+;meta[language=es]
+; id      |key(hex)|key(str)| text
+;
+; comment lines use ; as first character
+; all comment lines (except the two line header) will be ignored
+;
+2112067000|        |panel_Mods|Mods
+2112067001|        |panel_friendly_meditation|Friendly Meditation
+2112067008|        |HoldToMeditate|Friendly Meditation: Mantener para meditar
+2112067010|        |option_fmed_maxHoursPerMinute|Aceleración máx. (minutos del juego por seg.)
+2112067011|        |option_fmed_hoursPerMinutePerSecond|Aceleración del tiempo por seg. (minutos del juego por seg.)
+2112067012|        |option_fmed_useTimescale|Acelerar animaciones (no recomendado)
+2112067013|        |preset_Mods_friendly_meditation_fmed_meditation|Preajustes de Meditación
+2112067014|        |preset_value_fmed_defaults|Default
+2112067015|        |option_fmed_spawnCampfire|Crear fogata
+2112067016|        |preset_value_fmed_timescale|Aceleración
+2112067017|        |option_fmed_hotkeyBehavior|Comportamiento del botón de meditación al mantenerlo
+2112067018|        |preset_value_fmed_hotkeyBehavior_hold|Avanzar hasta soltar
+2112067019|        |preset_value_fmed_hotkeyBehavior_toggle|Auto avanzar
+2112067020|        |preset_value_fmed_hotkeyBehavior_wait|Esperar avance manual
+2112067021|        |MeditationFastForward|Friendly Meditation: Avance rápido
+2112067022|        |ToggleSpawnCampFire|Friendly Meditation: Activar fogatas
+2112067023|        |fmedSpawnCampFireOn|Crear fogata: activado
+2112067024|        |fmedSpawnCampFireOff|Crear fogata: desactivado
+2112067025|        |option_fmed_useMeditationCam|Usar cámara de meditación
+2112067026|        |option_fmed_camFacePlayer|Cámara de frente al jugador
+2112067027|        |option_fmed_camFOV|Campo de visión de la cámara de meditación
+2112067028|        |option_fmed_camPitch|Inclinación de la cámara de meditación
+2112067029|        |option_fmed_camXOffset|Umbral X de la cámara de de meditación
+2112067030|        |panel_fmed_meditation|Meditación
+2112067031|        |panel_fmed_camera|Cámara
+2112067032|        |preset_value_fmed_cam_off|Apagado
+2112067034|        |preset_Mods_friendly_meditation_fmed_camera|Preajustes de Cámara
+2112067035|        |preset_value_fmed_notimescale|Sin Aceleración
+2112067036|        |option_fmed_camDistance|Distancia de la cámara de meditación
+2112067037|        |preset_value_fmed_fov_only|Campo de visión
+2112067038|        |option_fmed_camZOffset|Umbral Z de la cámara de meditación
+2112067039|        |preset_value_fmed_sightseeing|Observación
+2112067040|        |option_fmed_doNotDespawnCampfire|No deshacer las fogatas creadas
+2112067041|        |message_fmed_started_fastforward|Avance rápido iniciado
+2112067042|        |message_fmed_ended_fastforward|Avance rápido detenido
+2112067043|        |panel_button_meditation_stop|Detener meditación
+2112067044|        |preset_value_fmed_prep_def|Preparations
+2112067045|        |option_fmed_beSilent|Desactivar mensajes emergentes
