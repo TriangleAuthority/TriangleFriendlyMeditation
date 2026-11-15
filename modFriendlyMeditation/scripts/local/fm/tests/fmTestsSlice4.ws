@@ -77,8 +77,10 @@ exec function fmtest_s4_gone(expectGone : bool)
 		+ ", HasCampfire " + w.GetBehaviorVariable('HasCampfire') + ", state " + w.GetCurrentStateName());
 	bad += FMTestCheck(!w.FMIsMeditating(), "standing");
 	if(expectGone)
+	{
 		bad += FMTestCheck(!w.fmSpawnedCampFire && !theGame.GetEntityByTag('fmed_campfire'), "the campfire was removed");
 		bad += FMTestCheck(w.GetBehaviorVariable('HasCampfire') == 0, "the put-out flag is cleared");
+	}
 	else
 		bad += FMTestCheck(w.fmSpawnedCampFire && w.fmSpawnedCampFire.IsOnFire(), "the campfire was kept and burns");
 	FMTestResult("fmtest_s4_gone", bad);
