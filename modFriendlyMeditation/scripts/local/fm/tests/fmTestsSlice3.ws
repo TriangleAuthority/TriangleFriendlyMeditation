@@ -15,12 +15,15 @@ function FMTestLogCamera(label : string)
 {
 	var cam : CCustomCamera;
 	var w : W3PlayerWitcher;
+	var camPos, pos : Vector;
 
 	w = GetWitcherPlayer();
 	cam = theGame.GetGameCamera();
+	camPos = theCamera.GetCameraPosition();
+	pos = w.GetWorldPosition();
 	LogChannel('FMTest', "info camera " + label + ": heading " + theCamera.GetCameraHeading() + ", Geralt " + w.GetHeading()
-		+ ", fov " + cam.fov + ", distance " + VecDistance(theCamera.GetCameraPosition(), w.GetWorldPosition())
-		+ ", height above Geralt " + (theCamera.GetCameraPosition().Z - w.GetWorldPosition().Z) + ", FM camera " + w.FMCameraActive()
+		+ ", fov " + cam.fov + ", distance " + VecDistance(camPos, pos)
+		+ ", height above Geralt " + (camPos.Z - pos.Z) + ", FM camera " + w.FMCameraActive()
 		+ ", state " + w.GetCurrentStateName() + ", action " + w.GetPlayerAction());
 }
 
