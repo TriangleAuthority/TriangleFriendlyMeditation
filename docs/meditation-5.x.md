@@ -62,7 +62,7 @@ Options for the port:
 2. **Own XML file:** a `modFriendlyMeditationInput.xml` in `user_config_matrix\pc\` with a `builder="Input"` group. The game reads every XML there, and groups of one id can come from two files (5.x's `Hidden` group is in `hidden.xml`; legacy FM added a second `Hidden` group inside `input.xml`), so a second `PCInput` group may merge into Key Bindings. Untested. Bindings would still need the `input.settings` lines.
 3. **No new action (fallback):** detect a long press of vanilla's `PanelMeditation` (N) in a `@replaceMethod` of `OnCommPanelMeditation` (press time stored, a timer at 0.4 s starts FM meditation, a short release keeps 5.x's behaviour). Covers the main hotkey without any config edit; the fast-forward and campfire keys would need another vanilla action or menu options instead. Untested.
 
-Slice 0 should settle which works: one action (`ToggleSpawnCampFire` on End) through option 2, then option 1.
+Slice 0 should settle which works: one action (`ToggleSpawnCampFire` on End) through option 2, then option 1. Manual setup by the player is accepted (owner, 2026-11-14, as in legacy), so option 1's manual steps are acceptable; option 2 is still preferred if it works, because it leaves the game's own `input.xml` alone.
 
 ## What is hard
 
