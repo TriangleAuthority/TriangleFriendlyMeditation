@@ -10,6 +10,27 @@
 @addField(W3PlayerWitcher)
 var fmTestTarget : int;
 
+// Calling the clock's OnMeditate from a script (not from its confirm button) makes the clock's Flash call
+// OnStopMeditate at once; 5.x's own wait gets the same stray stop (5.x aborted at 5:07 instead of 7:00, 2026-11-15).
+// The test swallows that one call; a real choice on the clock is the owner's check.
+@addField(W3PlayerWitcher)
+var fmTestSwallowClockStop : bool;
+
+@wrapMethod(CR4MeditationClockMenu)
+function OnStopMeditate()
+{
+	var w : W3PlayerWitcher;
+
+	w = GetWitcherPlayer();
+	if(w.fmTestSwallowClockStop)
+	{
+		w.fmTestSwallowClockStop = false;
+		LogChannel('FMTest', "info the clock's stray stop after a scripted choice swallowed");
+		return true;
+	}
+	return wrappedMethod();
+}
+
 function FMTestClockMenu() : CR4MeditationClockMenu
 {
 	return GetWitcherPlayer().clockMenu;
@@ -53,6 +74,7 @@ exec function fmtest_s5_choose(hoursAhead : int)
 	w = GetWitcherPlayer();
 	w.fmTestTarget = (GameTimeHours(theGame.GetGameTime()) + hoursAhead) % 24;
 	clock = FMTestClockMenu();
+	w.fmTestSwallowClockStop = true;
 	if(clock)
 		clock.OnMeditate(w.fmTestTarget);
 	LogChannel('FMTest', "info chose " + w.fmTestTarget + ":00 on the clock (open " + (bool)clock + ")");
