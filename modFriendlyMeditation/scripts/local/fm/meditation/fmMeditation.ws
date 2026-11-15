@@ -91,11 +91,9 @@ function FMStartHotkeyMeditation() : bool
 	if(FMIsMeditating() || GetCurrentStateName() == 'MeditationWaiting')
 		return false;
 	fmHotkeyMode = true;
-	FMDecideCampFire();
 	if(!Meditate())
 	{
 		fmHotkeyMode = false;
-		fmIgnite = false;
 		return false;
 	}
 	return true;
@@ -156,6 +154,7 @@ function FMEndFastForward()
 	if(!fmFastForward)
 		return;
 	fmFastForward = false;
+	FMCheckWitcherHouseBuffs(GameTimeToSeconds(theGame.GetGameTime()) - GameTimeToSeconds(fmStoredGameTime));
 	theGame.GetFastForwardSystem().AllowFastForwardSelfCompletion();
 	theGame.SetHoursPerMinute(fmStoredHPM);
 	if(fmTimescale)
@@ -235,6 +234,10 @@ function FMMeditationUpdate()
 		}
 	}
 	fmUpdatedGameTime = theGame.GetGameTime();
+
+	// from the clock: up to the chosen hour (legacy's check)
+	if(fmClockMode && GameTimeHours(theGame.GetGameTime()) == fmTargetHour)
+		FMEndClockMeditation();
 }
 
 // ---------------- the Meditation state ----------------
@@ -258,6 +261,8 @@ function OnLeaveState(nextStateName : name)
 		virtual_parent.fmHotkeyMode = false;
 		virtual_parent.fmSeated = false;
 		virtual_parent.fmIgnite = false;
+		virtual_parent.fmClockMode = false;
+		virtual_parent.fmClockPending = false;
 	}
 	return wrappedMethod(nextStateName);
 }
@@ -276,6 +281,11 @@ function OnPlayerTickTimer(deltaTime : float)
 	{
 		theInput.RestoreContext('Meditation', false);
 		changedContext = false;
+	}
+	if(virtual_parent.fmClockPending && !isEntryFunctionLocked)
+	{
+		virtual_parent.fmClockPending = false;
+		virtual_parent.FMStartClockFastForward();
 	}
 	if(virtual_parent.fmFastForward)
 		virtual_parent.FMMeditationUpdate();

@@ -1,5 +1,5 @@
-// FM-FIRE: the campfire of FM's hotkey meditation (legacy InternalBeginMeditation, SpawnCampFireTimer,
-// InternalEndMeditation, DeSpawnCampFireTimer). With "Spawn campfire" on and no FM campfire within 3 m, Geralt sits
+// FM-FIRE: the campfire of FM's meditation, every meditation but the bed's (legacy InternalBeginMeditation,
+// SpawnCampFireTimer, InternalEndMeditation, DeSpawnCampFireTimer); decided in FM's Meditate wrapper. With "Spawn campfire" on and no FM campfire within 3 m, Geralt sits
 // down with the Igni pose (behaviour variable MeditateWithIgnite) and the fire appears 4.5 s later, 0.8 m in front
 // of him; when he stands up he puts it out (HasCampfire) and it goes 1.5 s later, unless "Do not remove campfire" is
 // on. 5.x's sit-down clears MeditateWithIgnite just before PlayerStartAction(PEA_Meditation) and HasCampfire just
@@ -13,11 +13,11 @@ var fmSpawnedCampFire : W3Campfire;
 @addField(W3PlayerWitcher)
 var fmIgnite : bool;	// this sit-down lights a campfire
 
-// Decided when the hotkey starts a meditation: light a fire unless FM's fire is already within 3 m.
+// Decided when a meditation starts: light a fire unless in bed or FM's fire is already within 3 m.
 @addMethod(W3PlayerWitcher)
 function FMDecideCampFire()
 {
-	fmIgnite = fmConfig.SpawnCampFire()
+	fmIgnite = fmConfig.SpawnCampFire() && !FMInBed()
 		&& (!fmSpawnedCampFire || VecDistanceSquared2D(fmSpawnedCampFire.GetWorldPosition(), GetWorldPosition()) > 9.f);
 }
 
@@ -28,14 +28,14 @@ function PlayerStartAction(playerAction : EPlayerExplorationAction, optional ani
 	var ret : bool;
 
 	witcher = (W3PlayerWitcher)this;
-	if(playerAction == PEA_Meditation && witcher && witcher.fmHotkeyMode)
+	if(playerAction == PEA_Meditation && witcher && witcher.FMIsMeditating())
 	{
 		SetBehaviorVariable('HasCampfire', 0);
 		if(witcher.fmIgnite)
 			SetBehaviorVariable('MeditateWithIgnite', 1);
 	}
 	ret = wrappedMethod(playerAction, animName);
-	if(ret && playerAction == PEA_Meditation && witcher && witcher.fmHotkeyMode && witcher.fmIgnite)
+	if(ret && playerAction == PEA_Meditation && witcher && witcher.FMIsMeditating() && witcher.fmIgnite)
 		AddTimer('FMSpawnCampFireTimer', 4.5, false);
 	return ret;
 }
@@ -46,7 +46,7 @@ function PlayerStopAction(playerAction : EPlayerExplorationAction)
 	var witcher : W3PlayerWitcher;
 
 	witcher = (W3PlayerWitcher)this;
-	if(playerAction == PEA_Meditation && witcher && witcher.fmHotkeyMode)
+	if(playerAction == PEA_Meditation && witcher && witcher.FMIsMeditating())
 	{
 		RemoveTimer('FMSpawnCampFireTimer');
 		if(witcher.fmSpawnedCampFire && !witcher.fmConfig.DoNotDespawnCampFire())
