@@ -80,6 +80,16 @@ How 5.x (build 1090142, `vanilla-5.x`) differs from 1.32 in everything Friendly 
 - **`campfire_01.w2ent` spawns and burns in 5.x** (`theGame.CreateEntity` with a tag list, `W3Campfire.ToggleFire`); legacy's placement (navmesh Z, then physics) puts it on the ground.
 - **`HasCampfire` stays set after the put-out** until something clears it; FM clears it once its fire is removed.
 
+## What slice 5 showed
+
+**Verified** 2026-11-15 (beside Ghost Mode, by scripted calls):
+
+- **`Meditate()` from a script sits Geralt down and opens the clock once he is seated** (state `Meditation`, input context `EMPTY_CONTEXT`, time scale 0.1 while the clock is open).
+- **A calling wrapper of the state's `MeditationWait` that returns before `wrappedMethod` keeps Geralt in `Meditation`**; the clock's `OnMeditate` then blocks the clock and moves its panel as for 5.x's own wait. FM lifts the clock's slow motion (`RemoveTimeScale(GetTimescaleSource(ETS_Meditation))`, `ResetMeditationAnimSpeed()`) for its fast-forward.
+- **Closing the clock after an hour was chosen does not stand Geralt up in 5.x** (the clock's `OnClosingMenu` leaves that to the wait loop when `m_had_meditation` is set); FM's wrapper of `CR4MeditationClockMenu.OnClosingMenu` does. `CR4CommonMenu.CloseMenu()` from a script closes it the same way.
+- **Calling the clock's `OnMeditate` from a script makes its Flash call `OnStopMeditate` at once,** with 5.x's own wait as well (aborted at 5:07 instead of 7:00): a test artifact, not a 5.x or FM behaviour. Tests swallow that one call.
+- **`@wrapMethod` refuses methods a class inherits** (`CR4MenuBase.CloseMenu` comes from `CMenu`).
+
 ## Hotkeys on 5.x
 
 What the 5.x files show (**unverified** in game unless stated):
