@@ -54,6 +54,9 @@ var fmEffectSecsApplied : float;
 var fmSeated : bool;	// seated in hotkey mode (the fast-forward key works from here on)
 
 @addField(W3PlayerWitcher)
+var fmSeatedSecs : float;	// engine time when Geralt was seated (for the tests)
+
+@addField(W3PlayerWitcher)
 var fmRefilled : bool;	// this fast-forward session refilled alchemy already
 
 @addField(W3PlayerWitcher)
@@ -88,9 +91,11 @@ function FMStartHotkeyMeditation() : bool
 	if(FMIsMeditating() || GetCurrentStateName() == 'MeditationWaiting')
 		return false;
 	fmHotkeyMode = true;
+	FMDecideCampFire();
 	if(!Meditate())
 	{
 		fmHotkeyMode = false;
+		fmIgnite = false;
 		return false;
 	}
 	return true;
@@ -115,6 +120,7 @@ function FMEndMeditation()
 function FMSeated()
 {
 	fmSeated = true;
+	fmSeatedSecs = theGame.GetEngineTimeAsSeconds();
 	if(!fmConfig.HotkeyManualFastforward())
 		FMStartFastForward();
 }
@@ -251,6 +257,7 @@ function OnLeaveState(nextStateName : name)
 		theGame.ReleaseNoSaveLock(virtual_parent.fmNoSaveLock);
 		virtual_parent.fmHotkeyMode = false;
 		virtual_parent.fmSeated = false;
+		virtual_parent.fmIgnite = false;
 	}
 	return wrappedMethod(nextStateName);
 }
