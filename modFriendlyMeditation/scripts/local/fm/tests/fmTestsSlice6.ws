@@ -76,19 +76,14 @@ exec function fmtest_prep_defaults(expectPrep : bool)
 			&& FMOptionDefault('modFriendlyMeditation', 'Virtual_fmedHotkeyBehavior') == "0", "defaults: campfire off, hold mode");
 	bad += FMTestCheck(FMOptionDefault('modFriendlyMeditation', 'fmedMaxHoursPerMinute') == "60" && FMOptionDefault('modFriendlyMeditationCamera', 'fmedCamFOV') == "40",
 		"the other defaults unchanged");
-	// unset options take the default when the defaults are applied; set ones are kept
+	// an unset option takes the default when the defaults are applied. Only the campfire option can be emptied from a
+	// script: an OPTIONS list such as the hotkey mode keeps its last value when set to "" (2026-11-15)
 	keepSpawn = cfg.GetVarValue('modFriendlyMeditation', 'fmedSpawnCampfire');
 	keepMode = cfg.GetVarValue('modFriendlyMeditation', 'Virtual_fmedHotkeyBehavior');
 	cfg.SetVarValue('modFriendlyMeditation', 'fmedSpawnCampfire', "");
-	cfg.SetVarValue('modFriendlyMeditation', 'Virtual_fmedHotkeyBehavior', "");
 	FMApplyDefaultOptions();
-	LogChannel('FMTest', "info after applying: spawn '" + cfg.GetVarValue('modFriendlyMeditation', 'fmedSpawnCampfire') + "', mode '"
-		+ cfg.GetVarValue('modFriendlyMeditation', 'Virtual_fmedHotkeyBehavior') + "', manual " + GetFMeditationConfig().HotkeyManualFastforward());
-	if(expectPrep)
-		bad += FMTestCheck(GetFMeditationConfig().SpawnCampFire() && GetFMeditationConfig().HotkeyManualFastforward(), "unset options took the preset's values");
-	else
-		bad += FMTestCheck(!GetFMeditationConfig().SpawnCampFire() && !GetFMeditationConfig().HotkeyAsToggle() && !GetFMeditationConfig().HotkeyManualFastforward(),
-			"unset options took the defaults");
+	LogChannel('FMTest', "info after applying: spawn '" + cfg.GetVarValue('modFriendlyMeditation', 'fmedSpawnCampfire') + "'");
+	bad += FMTestCheck(GetFMeditationConfig().SpawnCampFire() == expectPrep, "the unset campfire option took the default (" + GetFMeditationConfig().SpawnCampFire() + ")");
 	cfg.SetVarValue('modFriendlyMeditation', 'Virtual_fmedHotkeyBehavior', "1");
 	FMApplyDefaultOptions();
 	bad += FMTestCheck(GetFMeditationConfig().HotkeyAsToggle(), "a set hotkey mode is kept");
