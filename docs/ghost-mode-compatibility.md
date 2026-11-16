@@ -52,7 +52,7 @@ With the [proposed form](port-plan.md#decisions-made) (FM's fast-forward inside 
 - **Timber and the message:** Preparations adds `PrepCampFireResourcesTimer` and `PrepCampFireErrorMessageTimer`; FM starts them by name only after Preparations answered (the first when its fire is made, the second when the meditation starts with the fire refused).
 - **FM's campfire counts as a fire:** tagged `fmed_campfire`; Preparations finds it by tag.
 - **Refill:** FM always calls `SingletonItemsRefillAmmo`, which Preparations filters by type (legacy's `fmedAutorefillAlchemy` switch goes).
-- **Options:** Preparations reads FM's legacy ids (`modFriendlyMeditation` / `fmedSpawnCampfire`) and detects FM by its options menu; with FM installed its own options default to legacy's "Friendly Meditation" preset.
+- **Options:** Preparations reads FM's legacy ids (`modFriendlyMeditation` / `fmedSpawnCampfire`) and detects FM by its options menu; with FM installed its own options default to legacy's "Friendly Meditation" preset. FM detects Preparations the same way (`GetVarsNumByGroupName('preparationsMeditation') > 0`) and then defaults to its own "Preparations" preset (campfire on, manual hotkey mode).
 
 **Legacy, for reference:**
 
