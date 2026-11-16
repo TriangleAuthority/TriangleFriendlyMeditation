@@ -45,15 +45,14 @@ With the [proposed form](port-plan.md#decisions-made) (FM's fast-forward inside 
 
 ## Preparations interaction
 
-**Proposed runtime interface** (analysis 2026-11-13; each mod keeps its own prefixed names, `FM*`/`Prep*`, and neither declares a shared one):
+**The interface as built** (PREP-FMED, **verified** 2026-11-15 with all three mods installed; each mod keeps its own prefixed names and neither declares a shared one, since two blobs must never declare the same name):
 
-- **"Is meditating":** Preparations checks the state name `'Meditation'`, as legacy Preparations' own `IsMeditating` did (legacy Preparations never used `IsSkippingTime`). FM's fast-forward stays in that state, so this needs nothing else.
-- **"May FM spawn a campfire now":** FM sets the fact `fmed_campfire_query` and calls vanilla `CanMeditate()`; Preparations' replacement, seeing the fact, runs its campfire check and writes `prep_fmed_campfire_ok`; FM reads it and removes both. Without Preparations the fact never appears and FM uses its own option.
-- **Autorefill:** legacy's `fmedAutorefillAlchemy` goes; FM always calls `SingletonItemsRefillAmmo`, which Preparations' replacement filters by type.
-- **Timber and the error message:** Preparations adds `PrepCampFireResourcesTimer` and `PrepCampFireErrorMessageTimer` (`@addMethod` timers); FM starts them by name with `AddTimer` only when Preparations is present (a fact Preparations sets in `OnSpawned`).
-- **FM's campfire counts as a fire:** FM tags it `fmed_campfire`; Preparations' fire check finds it by tag.
-- **Options:** Preparations keeps reading FM's legacy ids (`modFriendlyMeditation` / `fmedSpawnCampfire`).
-- Alternatively, a blob can call another blob's functions when compiled against it with `WSCompiler --reference` (verified, TriangleGhostMode `docs/development.md`), but then it fails without the other mod (untested how), so the runtime interface is preferred between mods that are installed separately.
+- **"Is meditating":** Preparations checks the state name `'Meditation'`; FM's fast-forward stays in that state.
+- **"May FM make its campfire now":** FM sets the fact `fmed_campfire_query` and calls `CanMeditate()`; Preparations' wrapper writes `prep_fmed_campfire_ok` (2 yes, 1 no) from its campfire check; FM reads it and removes both. Without Preparations the answer is 0 and FM uses its own rule (no FM fire within 3 m).
+- **Timber and the message:** Preparations adds `PrepCampFireResourcesTimer` and `PrepCampFireErrorMessageTimer`; FM starts them by name only after Preparations answered (the first when its fire is made, the second when the meditation starts with the fire refused).
+- **FM's campfire counts as a fire:** tagged `fmed_campfire`; Preparations finds it by tag.
+- **Refill:** FM always calls `SingletonItemsRefillAmmo`, which Preparations filters by type (legacy's `fmedAutorefillAlchemy` switch goes).
+- **Options:** Preparations reads FM's legacy ids (`modFriendlyMeditation` / `fmedSpawnCampfire`) and detects FM by its options menu; with FM installed its own options default to legacy's "Friendly Meditation" preset.
 
 **Legacy, for reference:**
 
