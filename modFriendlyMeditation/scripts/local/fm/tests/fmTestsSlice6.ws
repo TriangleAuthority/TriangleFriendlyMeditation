@@ -57,3 +57,42 @@ exec function fmtest_s6_pop()
 	bad += FMTestCheck(ignite == 0 && campfire == 0, "no campfire poses for the action");
 	FMTestResult("fmtest_s6_pop", bad);
 }
+
+// FM's options with Preparations installed default to legacy's "Preparations" preset (campfire on, manual hotkey
+// mode); without it, to the "Default" preset. expectPrep: whether Preparations is installed in this run.
+exec function fmtest_prep_defaults(expectPrep : bool)
+{
+	var cfg : CInGameConfigWrapper;
+	var keepSpawn, keepMode : string;
+	var bad : int;
+
+	cfg = theGame.GetInGameConfigWrapper();
+	bad += FMTestCheck(FMPrepInstalled() == expectPrep, "Preparations detected: " + FMPrepInstalled());
+	if(expectPrep)
+		bad += FMTestCheck(FMOptionDefault('modFriendlyMeditation', 'fmedSpawnCampfire') == "true"
+			&& FMOptionDefault('modFriendlyMeditation', 'Virtual_fmedHotkeyBehavior') == "2", "defaults: campfire on, manual hotkey mode");
+	else
+		bad += FMTestCheck(FMOptionDefault('modFriendlyMeditation', 'fmedSpawnCampfire') == "false"
+			&& FMOptionDefault('modFriendlyMeditation', 'Virtual_fmedHotkeyBehavior') == "0", "defaults: campfire off, hold mode");
+	bad += FMTestCheck(FMOptionDefault('modFriendlyMeditation', 'fmedMaxHoursPerMinute') == "60" && FMOptionDefault('modFriendlyMeditationCamera', 'fmedCamFOV') == "40",
+		"the other defaults unchanged");
+	// unset options take the default when the defaults are applied; set ones are kept
+	keepSpawn = cfg.GetVarValue('modFriendlyMeditation', 'fmedSpawnCampfire');
+	keepMode = cfg.GetVarValue('modFriendlyMeditation', 'Virtual_fmedHotkeyBehavior');
+	cfg.SetVarValue('modFriendlyMeditation', 'fmedSpawnCampfire', "");
+	cfg.SetVarValue('modFriendlyMeditation', 'Virtual_fmedHotkeyBehavior', "");
+	FMApplyDefaultOptions();
+	LogChannel('FMTest', "info after applying: spawn '" + cfg.GetVarValue('modFriendlyMeditation', 'fmedSpawnCampfire') + "', mode '"
+		+ cfg.GetVarValue('modFriendlyMeditation', 'Virtual_fmedHotkeyBehavior') + "', manual " + GetFMeditationConfig().HotkeyManualFastforward());
+	if(expectPrep)
+		bad += FMTestCheck(GetFMeditationConfig().SpawnCampFire() && GetFMeditationConfig().HotkeyManualFastforward(), "unset options took the preset's values");
+	else
+		bad += FMTestCheck(!GetFMeditationConfig().SpawnCampFire() && !GetFMeditationConfig().HotkeyAsToggle() && !GetFMeditationConfig().HotkeyManualFastforward(),
+			"unset options took the defaults");
+	cfg.SetVarValue('modFriendlyMeditation', 'Virtual_fmedHotkeyBehavior', "1");
+	FMApplyDefaultOptions();
+	bad += FMTestCheck(GetFMeditationConfig().HotkeyAsToggle(), "a set hotkey mode is kept");
+	cfg.SetVarValue('modFriendlyMeditation', 'fmedSpawnCampfire', keepSpawn);
+	cfg.SetVarValue('modFriendlyMeditation', 'Virtual_fmedHotkeyBehavior', keepMode);
+	FMTestResult("fmtest_prep_defaults", bad);
+}

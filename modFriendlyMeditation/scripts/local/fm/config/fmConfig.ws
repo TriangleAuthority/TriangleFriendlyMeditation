@@ -5,8 +5,32 @@
 // written when a save loads into options that were never set, and the reads fall back to it while an option is
 // empty (as Preparations' port does).
 
-// Default value of an option ("" if unknown). Add new options here, to FMOptionList and to the menu.
+// Preparations is installed: its options menu is (read from the menu, so it does not depend on which mod's
+// start-up code runs first).
+function FMPrepInstalled() : bool
+{
+	return theGame.GetInGameConfigWrapper().GetVarsNumByGroupName('preparationsMeditation') > 0;
+}
+
+// Default value of an option ("" if unknown). With Preparations installed, the options that legacy's
+// "Preparations" preset sets differently take its values (owner, 2026-11-15: legacy left that preset to the
+// player): the campfire on, the hotkey in manual mode ("Hold to enter meditation mode").
 function FMOptionDefault(group : name, option : name) : string
+{
+	if(FMPrepInstalled())
+	{
+		switch(option)
+		{
+			case 'fmedSpawnCampfire' :		return "true";
+			case 'Virtual_fmedHotkeyBehavior' :	return "2";
+		}
+	}
+	return FMBaseOptionDefault(group, option);
+}
+
+// Default value of an option without Preparations ("" if unknown). Add new options here, to FMOptionList and to
+// the menu.
+function FMBaseOptionDefault(group : name, option : name) : string
 {
 	switch(group)
 	{
