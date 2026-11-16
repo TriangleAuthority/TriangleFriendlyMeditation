@@ -248,6 +248,8 @@ function OnEnterState(prevStateName : name)
 	if(prevStateName != 'MeditationWaiting')
 		theGame.CreateNoSaveLock("FriendlyMeditation", virtual_parent.fmNoSaveLock);
 	virtual_parent.FMReadCameraOptions();
+	if(prevStateName != 'MeditationWaiting' && virtual_parent.fmCampFireRefused)
+		virtual_parent.AddTimer('PrepCampFireErrorMessageTimer', 0.1, false);
 	return wrappedMethod(prevStateName);
 }
 
@@ -261,6 +263,8 @@ function OnLeaveState(nextStateName : name)
 		virtual_parent.fmHotkeyMode = false;
 		virtual_parent.fmSeated = false;
 		virtual_parent.fmIgnite = false;
+		virtual_parent.fmPrepPresent = false;
+		virtual_parent.fmCampFireRefused = false;
 		virtual_parent.fmClockMode = false;
 		virtual_parent.fmClockPending = false;
 	}
