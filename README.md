@@ -20,14 +20,13 @@ All of the legacy mod's features are ported and tested by script in game, beside
 
 Needs The Witcher 3 game version 5.x (PC). Requirements of the legacy mod (Community Patch – Base, UPatch) do not apply: 5.x contains what it needed.
 
-1. **Get the mod folder** `modFriendlyMeditation`: from a release once there is one, or build it from this repository with `python tools/build_mod.py --ref master --out build/release --release` (needs Python 3 and REDkit's script compiler, see [docs/tools.md](docs/tools.md)); the folder is then `build/release/modFriendlyMeditation`.
-2. **Copy the mod:** put the `modFriendlyMeditation` folder into `<game>\mods\` (create `mods` if there is none; `<game>` is the folder that holds `bin` and `content`).
-3. **Copy the options menu:** copy `modFriendlyMeditation\bin\config\r4game\user_config_matrix\pc\modFMeditationConfig.xml` into `<game>\bin\config\r4game\user_config_matrix\pc\`.
-4. **Add the hotkeys:** with the game closed, open `Documents\The Witcher 3\input.settings` in a text editor and paste the lines from [release/input.settings.part.txt](release/input.settings.part.txt) at the top. They bind: hold N (or the right stick) to meditate, Space (or the left stick) to advance time in manual mode, End to switch the campfire on or off.
-5. **Optional, to see the keys in Options → Key Bindings:** paste the lines from [release/input.xml.part.txt](release/input.xml.part.txt) into the game's `input.xml` as that file explains. The keys work without this step. A game update may replace `input.xml`; paste them again afterwards.
-6. Start the game: the options are under **Options → Mods → Friendly Meditation**. They start at the legacy defaults; with Preparations installed, the campfire is on and the hotkey is in manual mode (legacy's "Preparations" preset).
+1. **Get the zip** `modFriendlyMeditation-<version>.zip`: from a release once there is one, or build it from this repository with `python tools/build_mod.py --ref master --out build/release --package` (needs Python 3 and REDkit, see [docs/tools.md](docs/tools.md)); the zip is then in `build/release/`.
+2. **Extract it into the game folder** `<game>` (the folder that holds `bin` and `content`), keeping its folders: it puts the mod into `<game>\mods\modFriendlyMeditation\` and its options menu into `<game>\bin\config\r4game\user_config_matrix\pc\modFMeditationConfig.xml`. Nothing else in the game changes.
+3. **Add the hotkeys:** with the game closed, open `Documents\The Witcher 3\input.settings` in a text editor and paste the lines from `input.settings.part.txt` (in `<game>\mods\modFriendlyMeditation\`, also [here](release/input.settings.part.txt)) at the top. They bind: hold N (or the right stick) to meditate, Space (or the left stick) to advance time in manual mode, End to switch the campfire on or off.
+4. **Optional, to see the keys in Options → Key Bindings:** paste the lines from `input.xml.part.txt` (next to the other file, also [here](release/input.xml.part.txt)) into the game's `input.xml` as that file explains. The keys work without this step. A game update may replace `input.xml`; paste them again afterwards.
+5. Start the game: the options are under **Options → Mods → Friendly Meditation**. They start at the legacy defaults; with Preparations installed, the campfire is on and the hotkey is in manual mode (legacy's "Preparations" preset).
 
-The mod does not change saves: it can be installed or removed at any point of a playthrough. To remove it, delete the `modFriendlyMeditation` folder from `<game>\mods\`, the menu file from step 3, and the lines from step 4.
+The mod does not change saves: it can be installed or removed at any point of a playthrough. To remove it, delete the `modFriendlyMeditation` folder from `<game>\mods\`, the menu file `modFMeditationConfig.xml` from step 2, and the lines from step 3.
 
 ## Using it with other mods (Script Merger)
 
