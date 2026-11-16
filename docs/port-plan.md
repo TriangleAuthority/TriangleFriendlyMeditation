@@ -21,7 +21,7 @@ As in TriangleGhostMode and TriangleGwentImprovements: reproduce the legacy mod'
 
 ## Decisions to make
 
-None open.
+1. **FM's own "Preparations" preset** (campfire on, manual hotkey mode): applied automatically when Preparations is installed, as Preparations now does with its "Friendly Meditation" preset, or left to the player as in legacy? Legacy's preset entries name `fmedHotkeyBehavior` while the option is `Virtual_fmedHotkeyBehavior` ([open questions](open-questions.md)).
 
 ## Features and port forms
 
